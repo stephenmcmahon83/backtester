@@ -1,0 +1,20 @@
+// FILE: supabase/functions/deno.jsonc
+{
+  "compilerOptions": {
+    "lib": ["deno.ns", "deno.unstable"]
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended"],
+      "exclude": ["no-explicit-any"]
+    }
+  },
+  "fmt": {
+    "options": {
+      "useTabs": false,
+      "lineWidth": 120,
+      "indentWidth": 2,
+      "singleQuote": true
+    }
+  }
+}

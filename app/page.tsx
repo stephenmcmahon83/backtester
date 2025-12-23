@@ -1,64 +1,182 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useState, useEffect, useMemo } from 'react';
+import { createClient } from "@supabase/supabase-js";
+
+type SnapshotRow = {
+  symbol: string;
+  c_vs_c200: 'bull' | 'bear';
+  c_vs_c100: 'bull' | 'bear';
+  p_vs_sma200: 'bull' | 'bear';
+  pct_off_26w_high: number;
+  pct_off_52w_high: number;
+  avg_rsi_2_10d: number | null;
+  avg_rsi_2_5d: number | null; 
+};
+
+type SortConfig = { key: keyof SnapshotRow; direction: 'asc' | 'desc' } | null;
+
+export default function HomePage() {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const [snapshotData, setSnapshotData] = useState<SnapshotRow[]>([]);
+  const [latestDate, setLatestDate] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'symbol', direction: 'asc' });
+
+  // --- NEW: CONTENT PROTECTION LOGIC ---
+  useEffect(() => {
+    // 1. Prevent Right Click
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    // 2. Prevent Copy/Cut/Paste shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) && 
+        (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    // 3. Prevent actual Copy/Cut/Paste events (in case menu is used)
+    const preventDefault = (e: Event) => e.preventDefault();
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('copy', preventDefault);
+    document.addEventListener('cut', preventDefault);
+    document.addEventListener('paste', preventDefault);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('copy', preventDefault);
+      document.removeEventListener('cut', preventDefault);
+      document.removeEventListener('paste', preventDefault);
+    };
+  }, []);
+  // -------------------------------------
+
+  useEffect(() => {
+    const fetchSnapshot = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, error } = await supabase.functions.invoke('market-snapshot');
+        if (error) throw new Error(error.message);
+        if (data.error) throw new Error(data.error);
+
+        setSnapshotData(data.snapshotData);
+        setLatestDate(data.latestDate);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSnapshot();
+  }, []);
+
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return snapshotData;
+    return [...snapshotData].sort((a, b) => {
+        const aVal = a[sortConfig.key];
+        const bVal = b[sortConfig.key];
+        if (aVal === null) return 1;
+        if (bVal === null) return -1;
+        if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+        return 0;
+    });
+  }, [snapshotData, sortConfig]);
+
+  const requestSort = (key: keyof SnapshotRow) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const BullBearLabel = ({ value }: { value: 'bull' | 'bear' }) => (
+    <span className={`px-2 py-1 text-xs font-bold rounded-full ${value === 'bull' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+      {value.toUpperCase()}
+    </span>
+  );
+
+  const PctLabel = ({ value }: { value: number }) => {
+    const pct = value * 100;
+    const color = pct > -10 ? 'text-green-700' : pct > -20 ? 'text-yellow-700' : 'text-red-700';
+    return <span className={`font-mono ${color}`}>{pct.toFixed(1)}%</span>;
+  };
+
+  const RsiLabel = ({ value }: { value: number | null }) => {
+    if (value === null) return <span className="text-gray-400">-</span>;
+    const color = value > 70 ? 'text-red-700' : value < 30 ? 'text-green-700' : 'text-gray-800';
+    return <span className={`font-mono ${color}`}>{value.toFixed(1)}</span>;
+  };
+
+  const headers: { key: keyof SnapshotRow; label: string; info: string; isNumeric?: boolean }[] = [
+    { key: 'symbol', label: 'Symbol', info: 'Ticker symbol' },
+    { key: 'c_vs_c200', label: 'vs 200D Ago', info: 'Current close vs close 200 trading days ago' },
+    { key: 'c_vs_c100', label: 'vs 100D Ago', info: 'Current close vs close 100 trading days ago' },
+    { key: 'p_vs_sma200', label: 'vs 200D SMA', info: 'Current close vs 200-day simple moving average' },
+    { key: 'pct_off_52w_high', label: '% off 52W High', info: 'Percentage below the 52-week high', isNumeric: true },
+    { key: 'pct_off_26w_high', label: '% off 26W High', info: 'Percentage below the 26-week high', isNumeric: true },
+    { key: 'avg_rsi_2_5d', label: '5D Avg RSI(2)', info: 'Average of the daily RSI(2) over the last 5 days', isNumeric: true },
+    { key: 'avg_rsi_2_10d', label: '10D Avg RSI(2)', info: 'Average of the daily RSI(2) over the last 10 days', isNumeric: true },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    // --- ADDED: select-none class to prevent text highlighting ---
+    <div className="bg-white min-h-screen select-none">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Market Snapshot</h1>
+        <p className="mt-2 text-gray-500">
+          A high-level overview of key trend and momentum metrics across the market.
+          {latestDate && ` Last data update: ${new Date(latestDate).toLocaleDateString()}`}
+        </p>
+        {loading && <div className="text-center py-20 text-indigo-600">Loading market data...</div>}
+        {error && <div className="mt-6 bg-red-50 text-red-700 p-4 rounded-md">Error: {error}</div>}
+        {!loading && !error && (
+          <div className="mt-8 overflow-auto border border-gray-200 rounded-lg shadow-sm" style={{ maxHeight: '80vh' }}>
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                  {headers.map(header => (
+                    <th key={header.key} onClick={() => requestSort(header.key)} className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" title={header.info}>
+                      <div className="flex items-center gap-2">
+                        {header.label}
+                        {sortConfig?.key === header.key && <span>{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sortedData.map((row) => (
+                  <tr key={row.symbol} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">{row.symbol}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c200} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c100} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.p_vs_sma200} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_52w_high} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_26w_high} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_5d} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_10d} /></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </main>
     </div>
   );
