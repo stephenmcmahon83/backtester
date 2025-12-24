@@ -1,9 +1,6 @@
-// app/page.tsx (The new Home Page)
-
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-// --- FIXED: Use the standard Supabase client you already have installed ---
 import { createClient } from "@supabase/supabase-js";
 
 type SnapshotRow = {
@@ -14,12 +11,12 @@ type SnapshotRow = {
   pct_off_26w_high: number;
   pct_off_52w_high: number;
   avg_rsi_2_10d: number | null;
+  avg_rsi_2_5d: number | null; 
 };
 
 type SortConfig = { key: keyof SnapshotRow; direction: 'asc' | 'desc' } | null;
 
 export default function HomePage() {
-  // --- FIXED: Initialize the client the same way as your other pages ---
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -30,6 +27,42 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'symbol', direction: 'asc' });
+
+  // --- NEW: CONTENT PROTECTION LOGIC ---
+  useEffect(() => {
+    // 1. Prevent Right Click
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+    };
+
+    // 2. Prevent Copy/Cut/Paste shortcuts
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) && 
+        (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    // 3. Prevent actual Copy/Cut/Paste events (in case menu is used)
+    const preventDefault = (e: Event) => e.preventDefault();
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('copy', preventDefault);
+    document.addEventListener('cut', preventDefault);
+    document.addEventListener('paste', preventDefault);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('copy', preventDefault);
+      document.removeEventListener('cut', preventDefault);
+      document.removeEventListener('paste', preventDefault);
+    };
+  }, []);
+  // -------------------------------------
 
   useEffect(() => {
     const fetchSnapshot = async () => {
@@ -51,7 +84,6 @@ export default function HomePage() {
     fetchSnapshot();
   }, []);
 
-  // --- (The rest of the file is exactly the same and does not need to be changed) ---
   const sortedData = useMemo(() => {
     if (!sortConfig) return snapshotData;
     return [...snapshotData].sort((a, b) => {
@@ -98,11 +130,13 @@ export default function HomePage() {
     { key: 'p_vs_sma200', label: 'vs 200D SMA', info: 'Current close vs 200-day simple moving average' },
     { key: 'pct_off_52w_high', label: '% off 52W High', info: 'Percentage below the 52-week high', isNumeric: true },
     { key: 'pct_off_26w_high', label: '% off 26W High', info: 'Percentage below the 26-week high', isNumeric: true },
+    { key: 'avg_rsi_2_5d', label: '5D Avg RSI(2)', info: 'Average of the daily RSI(2) over the last 5 days', isNumeric: true },
     { key: 'avg_rsi_2_10d', label: '10D Avg RSI(2)', info: 'Average of the daily RSI(2) over the last 10 days', isNumeric: true },
   ];
 
   return (
-    <div className="bg-white min-h-screen">
+    // --- ADDED: select-none class to prevent text highlighting ---
+    <div className="bg-white min-h-screen select-none">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Market Snapshot</h1>
         <p className="mt-2 text-gray-500">
@@ -135,6 +169,7 @@ export default function HomePage() {
                     <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.p_vs_sma200} /></td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_52w_high} /></td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_26w_high} /></td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_5d} /></td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_10d} /></td>
                   </tr>
                 ))}
