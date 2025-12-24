@@ -1,9 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // This forces Vercel to ignore the Deno/Supabase errors and deploy anyway
+  // This helps prevent "Module not found" errors during deployment
   typescript: {
     ignoreBuildErrors: true,
   },
+  // This prevents ESLint from failing the build
   eslint: {
     ignoreDuringBuilds: true,
   },
