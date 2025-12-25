@@ -1,4 +1,3 @@
-// app/components/Navbar.tsx
 "use client";
 
 import { useState } from "react";
@@ -44,7 +43,7 @@ export default function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
             
-            {/* Desktop Dropdown 1 */}
+            {/* Desktop Dropdown 1: Single Stock */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Single Stock Backtesting <span className="text-xs">▼</span>
@@ -55,7 +54,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 2 */}
+            {/* Desktop Dropdown 2: Portfolio */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Portfolio Backtesting <span className="text-xs">▼</span>
@@ -65,7 +64,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 3 */}
+            {/* Desktop Dropdown 3: Seasonality */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Seasonality <span className="text-xs">▼</span>
@@ -73,6 +72,17 @@ export default function Navbar() {
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock/ETF - Full Year</Link>
                 <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks/ETFs - Current</Link>
+              </div>
+            </div>
+
+            {/* Desktop Dropdown 4: Streaks (NEW) */}
+            <div className="relative group z-50">
+              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
+                Streaks <span className="text-xs">▼</span>
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/streaks-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock Analyzer</Link>
+                <Link href="/streaks-scanner" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks Scanner</Link>
               </div>
             </div>
 
@@ -154,6 +164,23 @@ export default function Navbar() {
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
                   <Link href="/seasonal-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock/ETF - Full Year</Link>
                   <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks/ETFs - Current</Link>
+                </div>
+              )}
+            </div>
+
+             {/* Mobile Dropdown 4: Streaks (NEW) */}
+             <div>
+              <button 
+                onClick={() => toggleDropdown('streaks')} 
+                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                Streaks
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'streaks' ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {activeDropdown === 'streaks' && (
+                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
+                  <Link href="/streaks-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock Analyzer</Link>
+                  <Link href="/streaks-scanner" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks Scanner</Link>
                 </div>
               )}
             </div>
