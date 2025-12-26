@@ -4,7 +4,7 @@ import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import Navbar from "@/components/Navbar";
-import Link from "next/link"; // ✅ Added import for links
+import Link from "next/link"; 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -45,6 +45,26 @@ export default function RootLayout({
             });
           `}
         </Script>
+
+        {/* ✅ Buy Me a Coffee Widget 
+            Using {...{}} syntax to pass data-attributes without TypeScript errors 
+        */}
+        <Script
+          id="bmc-widget"
+          strategy="lazyOnload"
+          src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
+          {...{
+            "data-name": "bmc-button",
+            "data-slug": "finbacktester.com",
+            "data-color": "#40DCA5",
+            "data-emoji": "🙏",
+            "data-font": "Poppins",
+            "data-text": "Donate",
+            "data-outline-color": "#000000",
+            "data-font-color": "#ffffff",
+            "data-coffee-color": "#FFDD00"
+          }}
+        />
       </head>
 
       <body
@@ -60,7 +80,6 @@ export default function RootLayout({
 
         <footer className="bg-white border-t border-gray-200 mt-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            {/* ✅ Updated Footer Layout */}
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-gray-500">
                 &copy; {new Date().getFullYear()} FinBacktester. All rights
