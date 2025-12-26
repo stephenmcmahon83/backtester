@@ -68,34 +68,37 @@ export default function StreakSinglePage() {
         fetchData();
     }, [ticker]);
 
-    // 3. Define Columns
+    // 3. Define Combined Columns (Interleaved)
     const forwardDays = [1, 2, 3, 5, 10];
     
-    const avgReturnColumns = [
+    // Helper to generate paired columns (Return + Win %)
+    const combinedColumns: any[] = [
         { header: 'Streak', accessorKey: 'streak_val' },
-        { header: 'Trades', accessorKey: 'count' },
-        ...forwardDays.map(d => ({
-            header: `+${d} Day`,
-            accessorKey: `avg_ret_${d}`, 
-            isNumeric: true,
-        })),
+        { header: 'Trades', accessorKey: 'count' }
     ];
 
-    const pctProfitableColumns = [
-        { header: 'Streak', accessorKey: 'streak_val' },
-        { header: 'Trades', accessorKey: 'count' },
-        ...forwardDays.map(d => ({
-            header: `+${d} Day`,
+    forwardDays.forEach(d => {
+        combinedColumns.push({
+            header: `+${d}D Avg`,
+            accessorKey: `avg_ret_${d}`, 
+            isNumeric: true,
+            type: 'return'
+        });
+        combinedColumns.push({
+            header: `+${d}D Win%`,
             accessorKey: `win_pct_${d}`, 
             isNumeric: true,
-        })),
-    ];
+            type: 'profitable'
+        });
+    });
 
     return (
         <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white">
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Single Stock Streak Analyzer</h1>
-                <p className="text-gray-500">Historical performance based on consecutive up/down days. Entry at next day's open.</p>
+                <p className="text-gray-500">
+                    Results based on entering/exiting on the next day's open, and include 0.10% round-trip commission.
+                </p>
             </header>
             
             <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex items-end gap-6">
@@ -122,31 +125,19 @@ export default function StreakSinglePage() {
             {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
 
             {!loading && data.length > 0 && (
-                <div className="space-y-16">
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Average Return by Streak</h2>
-                            <p className="text-sm text-gray-500 mt-1">Average return (net of 0.10% comms) buying Open T+1 and holding N days.</p>
-                        </div>
-                        <StreaksTable 
-                            data={data} 
-                            columns={avgReturnColumns} 
-                            colorScaleType="return" 
-                        />
-                    </section>
-
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Win Rate (%) by Streak</h2>
-                            <p className="text-sm text-gray-500 mt-1">Percentage of trades profitable.</p>
-                        </div>
-                        <StreaksTable 
-                            data={data} 
-                            columns={pctProfitableColumns} 
-                            colorScaleType="profitable" 
-                        />
-                    </section>
-                </div>
+                <section>
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold text-gray-800">Historical Performance</h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Combined view of average returns and win rates by streak count.
+                        </p>
+                    </div>
+                    {/* ✅ CORRECTED: No colorScaleType prop here */}
+                    <StreaksTable 
+                        data={data} 
+                        columns={combinedColumns} 
+                    />
+                </section>
             )}
         </div>
     );
