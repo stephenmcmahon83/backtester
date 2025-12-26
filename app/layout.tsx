@@ -1,11 +1,10 @@
-// app/layout.tsx
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import Navbar from "@/components/Navbar";
+import Link from "next/link"; // ✅ Added import for links
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ Google AdSense (kept as-is) */}
+        {/* ✅ Google AdSense */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
@@ -61,11 +60,28 @@ export default function RootLayout({
 
         <footer className="bg-white border-t border-gray-200 mt-auto">
           <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
+            {/* ✅ Updated Footer Layout */}
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-gray-500">
                 &copy; {new Date().getFullYear()} FinBacktester. All rights
                 reserved.
               </p>
+
+              {/* ✅ Privacy & Disclaimer Links */}
+              <div className="flex gap-6 text-sm">
+                <Link 
+                  href="/privacy-policy" 
+                  className="text-gray-500 hover:text-indigo-600 transition-colors"
+                >
+                  Privacy Policy
+                </Link>
+                <Link 
+                  href="/disclaimer" 
+                  className="text-gray-500 hover:text-indigo-600 transition-colors"
+                >
+                  Disclaimer
+                </Link>
+              </div>
             </div>
           </div>
         </footer>
