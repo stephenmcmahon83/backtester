@@ -206,7 +206,7 @@ export default function Navbar() {
               className="block text-center bg-[#40DCA5] text-white px-3 py-2 rounded-md text-base font-bold shadow-sm mb-2"
               onClick={toggleMenu}
             >
-              Donate 🙏
+              Donate
             </a>
 
             <Link href="/about" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-indigo-600" onClick={toggleMenu}>About</Link>

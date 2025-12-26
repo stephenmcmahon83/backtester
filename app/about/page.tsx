@@ -9,9 +9,6 @@ export default function AboutPage() {
           <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
             About FinBacktester
           </h1>
-          <p className="text-lg text-gray-600">
-            Built by a trader, for traders.
-          </p>
         </div>
       </div>
 
@@ -20,17 +17,15 @@ export default function AboutPage() {
         
         {/* The Personal Note */}
         <section className="prose prose-lg text-gray-700 leading-relaxed">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Hi, I'm Steve.</h2>
           <p>
-            I’ve been involved in the financial markets for about 20 years now as an individual investor, and 10 years as a systems trader. 
-            Like many of you, I love the markets—the patterns, the statistics, and the endless puzzle of trying to find an edge.
+            Hi, I'm Steve.I’ve been involved in the financial markets for about 20 years now as an individual investor, and 10 years as a systems trader. 
           </p>
           <p>
             I built FinBacktester because I wanted to create the kind of tool I wish I had when I started: 
             something that helps individual system traders and investors move towards data-driven decision-making. 
           </p>
           <p> 
-            I genuinely feel these tools provided on the site are valuable, and I hope you find them useful in your own trading journey.
+            These tools are not a guaranteed way to make money in the markets. But they do provide a solid foundation for testing and refining trading strategies based on historical data, patterns, and observations. My hope is that they help you in some way become a more informed and successful market participant.
           </p>
         </section>
 
@@ -43,8 +38,8 @@ export default function AboutPage() {
             <div className="flex-1">
               <h3 className="text-xl font-bold text-gray-900 mb-2">Supporting the Site</h3>
               <p className="text-gray-700 text-sm mb-4">
-                It takes a surprising amount of time and effort to build a platform like this and keep it running smoothly. 
-                There are costs for server hosting, data feeds, and time spent building features.
+                It takes time and effort to build a platform like this and keep it running smoothly. 
+                There are costs for server hosting, data feeds, etc.
               </p>
               <p className="text-gray-700 text-sm">
                 If you've found value in these tools and want to support the project, any donation is greatly appreciated—it helps 
@@ -58,7 +53,7 @@ export default function AboutPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-[#40DCA5] hover:bg-[#35b88a] shadow-sm transition-transform transform hover:scale-105"
               >
-                <span>Donate 🙏</span>
+                <span>Donate</span>
               </a>
             </div>
           </div>
