@@ -46,21 +46,21 @@ export default function Navbar() {
             {/* Desktop Dropdown 1: Single Stock */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Single Stock Backtesting <span className="text-xs">▼</span>
+                Single Stock <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <Link href="/trend-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Trend Strategies</Link>
-                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Mean-Reversion Strategies</Link>
+                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Mean-Reversion</Link>
               </div>
             </div>
 
             {/* Desktop Dropdown 2: Portfolio */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Portfolio Backtesting <span className="text-xs">▼</span>
+                Portfolio <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/portfolio-momentum" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Monthly Momentum Rotation</Link>
+                <Link href="/portfolio-momentum" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Monthly Momentum</Link>
               </div>
             </div>
 
@@ -70,8 +70,8 @@ export default function Navbar() {
                 Seasonality <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock/ETF - Full Year</Link>
-                <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks/ETFs - Current</Link>
+                <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock - Full Year</Link>
+                <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks - Current</Link>
               </div>
             </div>
 
@@ -87,10 +87,21 @@ export default function Navbar() {
             </div>
 
             <div className="w-px h-6 bg-gray-300 mx-2"></div>
+            
             <div className="flex gap-1">
               <Link href="/about" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">About</Link>
               <Link href="/disclaimer" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Disclaimer</Link>
             </div>
+
+            {/* ✅ DONATE BUTTON (Desktop) */}
+            <a 
+              href="https://www.buymeacoffee.com/finbacktester.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="ml-2 bg-[#40DCA5] hover:bg-[#35b88a] text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm transition-all transform hover:scale-105 flex items-center gap-1"
+            >
+              Donate 🙏
+            </a>
           </div>
 
           {/* MOBILE MENU BUTTON (Hamburger) */}
@@ -124,7 +135,7 @@ export default function Navbar() {
                 onClick={() => toggleDropdown('single')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               >
-                Single Stock Backtesting 
+                Single Stock
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'single' ? 'rotate-180' : ''}`}>▼</span>
               </button>
               {activeDropdown === 'single' && (
@@ -141,7 +152,7 @@ export default function Navbar() {
                 onClick={() => toggleDropdown('portfolio')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               >
-                Portfolio Backtesting
+                Portfolio
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'portfolio' ? 'rotate-180' : ''}`}>▼</span>
               </button>
               {activeDropdown === 'portfolio' && (
@@ -162,8 +173,8 @@ export default function Navbar() {
               </button>
               {activeDropdown === 'seasonal' && (
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/seasonal-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock/ETF - Full Year</Link>
-                  <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks/ETFs - Current</Link>
+                  <Link href="/seasonal-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock - Full Year</Link>
+                  <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks - Current</Link>
                 </div>
               )}
             </div>
@@ -186,6 +197,18 @@ export default function Navbar() {
             </div>
 
             <div className="border-t border-gray-200 my-2"></div>
+            
+            {/* ✅ DONATE BUTTON (Mobile) */}
+             <a 
+              href="https://www.buymeacoffee.com/finbacktester.com" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block text-center bg-[#40DCA5] text-white px-3 py-2 rounded-md text-base font-bold shadow-sm mb-2"
+              onClick={toggleMenu}
+            >
+              Donate 🙏
+            </a>
+
             <Link href="/about" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-indigo-600" onClick={toggleMenu}>About</Link>
             <Link href="/disclaimer" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-indigo-600" onClick={toggleMenu}>Disclaimer</Link>
           </div>

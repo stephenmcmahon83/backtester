@@ -45,33 +45,12 @@ export default function RootLayout({
             });
           `}
         </Script>
-
-        {/* ✅ Buy Me a Coffee Widget 
-            Using {...{}} syntax to pass data-attributes without TypeScript errors 
-        */}
-        <Script
-          id="bmc-widget"
-          strategy="lazyOnload"
-          src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-          {...{
-            "data-name": "bmc-button",
-            "data-slug": "finbacktester.com",
-            "data-color": "#40DCA5",
-            "data-emoji": "🙏",
-            "data-font": "Poppins",
-            "data-text": "Donate",
-            "data-outline-color": "#000000",
-            "data-font-color": "#ffffff",
-            "data-coffee-color": "#FFDD00"
-          }}
-        />
       </head>
 
       <body
         className={`${inter.className} bg-gray-100 flex flex-col min-h-screen`}
         suppressHydrationWarning
       >
-        {/* ✅ Sticky Header */}
         <header className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-50">
           <Navbar />
         </header>
@@ -85,27 +64,17 @@ export default function RootLayout({
                 &copy; {new Date().getFullYear()} FinBacktester. All rights
                 reserved.
               </p>
-
-              {/* ✅ Privacy & Disclaimer Links */}
               <div className="flex gap-6 text-sm">
-                <Link 
-                  href="/privacy-policy" 
-                  className="text-gray-500 hover:text-indigo-600 transition-colors"
-                >
+                <Link href="/privacy-policy" className="text-gray-500 hover:text-indigo-600 transition-colors">
                   Privacy Policy
                 </Link>
-                <Link 
-                  href="/disclaimer" 
-                  className="text-gray-500 hover:text-indigo-600 transition-colors"
-                >
+                <Link href="/disclaimer" className="text-gray-500 hover:text-indigo-600 transition-colors">
                   Disclaimer
                 </Link>
               </div>
             </div>
           </div>
         </footer>
-
-        {/* ✅ Vercel Analytics */}
         <Analytics />
       </body>
     </html>
