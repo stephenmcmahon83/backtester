@@ -6,12 +6,14 @@ type ColumnDef = {
     header: string;
     accessorKey: string;
     isNumeric?: boolean;
+    // New: Allow specific color logic per column
+    type?: 'return' | 'profitable'; 
 };
 
 type TableProps = {
     data: any[];
     columns: ColumnDef[];
-    colorScaleType: 'return' | 'profitable';
+    // Removed global 'colorScaleType' prop in favor of per-column definition
 };
 
 type SortConfig = {
@@ -19,7 +21,7 @@ type SortConfig = {
     direction: 'asc' | 'desc';
 } | null;
 
-export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
+export const StreaksTable = ({ data, columns }: TableProps) => {
     
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
@@ -40,8 +42,8 @@ export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
 
     const requestSort = (key: string) => {
         let direction: 'asc' | 'desc' = 'desc'; 
-        // Default to ascending for streak value so negatives show correctly
-        if (key === 'streak_val' || key === 'symbol') direction = 'asc'; 
+        // Default to ascending for streak value so negatives show correctly in order
+        if (key === 'streak_val' || key === 'current_streak' || key === 'symbol') direction = 'asc'; 
 
         if (sortConfig && sortConfig.key === key && sortConfig.direction === direction) {
             direction = direction === 'asc' ? 'desc' : 'asc';
@@ -50,15 +52,19 @@ export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
     };
 
     // Style Logic
-    const getCellStyle = (rawValue: any, type: 'return' | 'profitable') => {
+    const getCellStyle = (rawValue: any, type?: 'return' | 'profitable') => {
         const value = Number(rawValue);
         if (isNaN(value) || rawValue === null || rawValue === undefined) return {};
         
         let backgroundColor = '';
+        
+        // 1. Return Coloring (Green > 0, Red < 0)
         if (type === 'return') {
             if (value > 0) backgroundColor = `rgba(34, 197, 94, ${Math.min(value * 25, 0.6)})`; 
             else if (value < 0) backgroundColor = `rgba(239, 68, 68, ${Math.min(Math.abs(value) * 25, 0.6)})`;
         }
+        
+        // 2. Win Rate Coloring (Green > 55%, Red < 45%)
         if (type === 'profitable') {
             if (value >= 0.55) {
                 const intensity = (value - 0.5) * 3;
@@ -71,16 +77,17 @@ export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
         return { backgroundColor };
     };
 
-    const formatValue = (rawValue: any, isNumeric: boolean) => {
+    const formatValue = (rawValue: any, isNumeric: boolean, type?: 'return' | 'profitable') => {
         if (!isNumeric) return rawValue;
         const value = Number(rawValue);
         if (isNaN(value)) return rawValue;
-        if (colorScaleType === 'profitable') return Math.round(value * 100);
-        return (value * 100).toFixed(2);
+        
+        if (type === 'profitable') return Math.round(value * 100);
+        return (value * 100).toFixed(2) + '%';
     };
 
     return (
-        // ADDED 'select-none' HERE TO PREVENT COPYING
+        // Copy protection enabled via select-none
         <div className="overflow-auto border border-gray-200 rounded-lg max-h-[800px] shadow-sm bg-white select-none">
             <table className="min-w-full text-sm text-left text-gray-900 border-collapse">
                 <thead className="text-xs text-gray-500 uppercase bg-gray-50">
@@ -116,7 +123,7 @@ export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
                             >
                                 {columns.map((col, index) => {
                                     const val = row[col.accessorKey];
-                                    const style = col.isNumeric ? getCellStyle(val, colorScaleType) : {};
+                                    const style = col.isNumeric ? getCellStyle(val, col.type) : {};
                                     const isStickyLeft = index === 0;
                                     return (
                                         <td 
@@ -127,7 +134,7 @@ export const StreaksTable = ({ data, columns, colorScaleType }: TableProps) => {
                                             `}
                                             style={!isStickyLeft ? style : {}} 
                                         >
-                                            {formatValue(val, col.isNumeric || false)}
+                                            {formatValue(val, col.isNumeric || false, col.type)}
                                         </td>
                                     );
                                 })}

@@ -20,7 +20,6 @@ export default function StreakDashboard() {
             setError(null);
             
             try {
-                // Sending empty body triggers "All Stocks" mode in the edge function
                 const { data: responseData, error: functionError } = await supabase.functions.invoke(
                     'calculate-streaks',
                     { method: 'POST' } 
@@ -44,26 +43,37 @@ export default function StreakDashboard() {
 
     const forwardDays = [1, 2, 3, 5, 10];
     
-    const avgReturnColumns = [
+    // Combined Columns for Scanner
+    const combinedColumns: any[] = [
         { header: 'Symbol', accessorKey: 'symbol' },
         { header: 'Current Streak', accessorKey: 'current_streak' },
-        { header: 'Hist. Occurrences', accessorKey: 'occurrence_count' },
-        ...forwardDays.map(d => ({
-            header: `+${d} Day`,
+        { header: 'Hist. Count', accessorKey: 'occurrence_count' },
+    ];
+
+    forwardDays.forEach(d => {
+        combinedColumns.push({
+            header: `+${d}D Avg`,
             accessorKey: `avg_ret_${d}`, 
             isNumeric: true,
-        })),
-    ];
+            type: 'return'
+        });
+        combinedColumns.push({
+            header: `+${d}D Win%`,
+            accessorKey: `win_pct_${d}`, 
+            isNumeric: true,
+            type: 'profitable'
+        });
+    });
 
     return (
         <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white">
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Streak Scanner</h1>
                 <p className="text-gray-500">
-                    Showing current streaks for all stocks and their historical forward returns. 
+                    Showing current streaks for all stocks and their historical forward returns.
                     <br/>
                     <span className="text-xs text-gray-400">
-                        *Data assumes buying next Open, 0.10% commission. Protected content (copy disabled).
+                        Results based on entering/exiting on the next day's open, and include 0.10% round-trip commission.
                     </span>
                 </p>
             </header>
@@ -75,8 +85,7 @@ export default function StreakDashboard() {
                 <section>
                     <StreaksTable 
                         data={data} 
-                        columns={avgReturnColumns} 
-                        colorScaleType="return" 
+                        columns={combinedColumns} 
                     />
                 </section>
             )}
