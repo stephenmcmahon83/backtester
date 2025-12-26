@@ -53,7 +53,7 @@ export default function DisclaimerPage() {
             investment. Past performance is not a guarantee of future performance. You are solely
             responsible for your own investment decisions and any resulting financial losses.
           </p>
-
+          <br></br>
           <p>
             We strongly advise you to consult with a qualified financial professional before making
             any investment decisions. By using FinBacktester, you agree to hold its owners, affiliates,

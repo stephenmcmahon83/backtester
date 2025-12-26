@@ -2,36 +2,25 @@ import React from 'react';
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-3xl mx-auto px-6 py-16 text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
-            About FinBacktester
-          </h1>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-white">   
       {/* Main Content */}
       <div className="max-w-3xl mx-auto px-6 py-12 space-y-12">
         
         {/* The Personal Note */}
         <section className="prose prose-lg text-gray-700 leading-relaxed">
           <p>
-            Hi, I'm Steve.I’ve been involved in the financial markets for about 20 years now as an individual investor, and 10 years as a systems trader. 
+            Hi, I'm Steve. I’ve been involved in the financial markets for about 20 years now as an individual investor, and 10 years as a systems trader. 
           </p>
+          <br></br>
           <p>
-            I built FinBacktester because I wanted to create the kind of tool I wish I had when I started: 
+            Thanks to AI, I have finally been able to put some of my personal investing/trading tools on my own website. I built FinBacktester because I wanted to create the kind of tool I wish I had when I started: 
             something that helps individual system traders and investors move towards data-driven decision-making. 
           </p>
+          <br></br>
           <p> 
-            These tools are not a guaranteed way to make money in the markets. But they do provide a solid foundation for testing and refining trading strategies based on historical data, patterns, and observations. My hope is that they help you in some way become a more informed and successful market participant.
+            Please note: <b>these tools are not a guaranteed way to make money in the markets.</b> They are intented to provide a foundation for testing and refining trading strategies based on historical data, patterns, and observations. My hope is that they help you in some way become a more informed and successful market participant.
           </p>
         </section>
-
-        {/* Divider */}
-        <hr className="border-gray-200" />
-
         {/* The "Support the Project" Section */}
         <section className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
@@ -64,7 +53,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Get in Touch</h2>
           <p className="text-gray-700 mb-6">
             I am always looking to improve this platform. If you have suggestions for new features, 
-            found a bug, or just want to discuss trading strategies, feel free to reach out.
+            found a bug, or just want to discuss trading strategies, feel free to reach out:
           </p>
           
           <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200 w-fit">

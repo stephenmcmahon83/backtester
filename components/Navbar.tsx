@@ -100,7 +100,7 @@ export default function Navbar() {
               rel="noopener noreferrer"
               className="ml-2 bg-[#40DCA5] hover:bg-[#35b88a] text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm transition-all transform hover:scale-105 flex items-center gap-1"
             >
-              Donate 🙏
+              Donate
             </a>
           </div>
 
