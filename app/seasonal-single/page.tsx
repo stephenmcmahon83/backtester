@@ -132,10 +132,10 @@ export default function StreakSinglePage() {
                             Combined view of average returns and win rates by streak count.
                         </p>
                     </div>
+                    {/* UPDATED: Only passing data and columns, NO colorScaleType */}
                     <StreaksTable 
                         data={data} 
                         columns={combinedColumns} 
-                        // No global type needed anymore, handled inside columns
                     />
                 </section>
             )}

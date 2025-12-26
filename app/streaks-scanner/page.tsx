@@ -83,6 +83,7 @@ export default function StreakDashboard() {
 
             {!loading && data.length > 0 && (
                 <section>
+                    {/* UPDATED: Only passing data and columns, NO colorScaleType */}
                     <StreaksTable 
                         data={data} 
                         columns={combinedColumns} 
