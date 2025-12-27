@@ -1,8 +1,6 @@
-// FILE: app/portfolio-momentum/page.tsx
-
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Line } from 'react-chartjs-2';
 import {
@@ -39,17 +37,70 @@ type BacktestResult = {
 export default function MomentumPage() {
   const supabase = createSupabaseBrowserClient();
 
-  const [tickers, setTickers] = useState("SPY,TLT,GLD,EEM");
+  // --- STATE ---
+  const [selectedTickers, setSelectedTickers] = useState<string[]>(["SPY", "TLT", "GLD", "EEM"]);
+  const [availableSymbols, setAvailableSymbols] = useState<string[]>([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  
   const [lookbackMonths, setLookbackMonths] = useState(3);
   const [topN, setTopN] = useState(1);
   const [startYear, setStartYear] = useState(2007);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<BacktestResult | null>(null);
 
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // --- 1. Fetch Available Symbols ---
+  useEffect(() => {
+    const fetchSymbols = async () => {
+      const { data } = await supabase
+        .from('symbols')
+        .select('symbol')
+        .order('symbol', { ascending: true });
+      
+      if (data) {
+        setAvailableSymbols(data.map(d => d.symbol));
+      }
+    };
+    fetchSymbols();
+
+    // Click outside listener to close dropdown
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // --- 2. Ticker Selection Logic ---
+  const toggleTicker = (ticker: string) => {
+    if (selectedTickers.includes(ticker)) {
+      setSelectedTickers(prev => prev.filter(t => t !== ticker));
+    } else {
+      if (selectedTickers.length >= 8) return; // Limit to 8
+      setSelectedTickers(prev => [...prev, ticker]);
+      setSearchTerm(""); // Reset search after selection for easier UX
+    }
+  };
+
+  const removeTicker = (ticker: string) => {
+    setSelectedTickers(prev => prev.filter(t => t !== ticker));
+  };
+
+  // Filter dropdown list based on search
+  const filteredSymbols = availableSymbols.filter(sym => 
+    sym.includes(searchTerm.toUpperCase()) && !selectedTickers.includes(sym)
+  );
+
+  // --- 3. Backtest Execution ---
   const handleRunBacktest = async () => {
-    if (!tickers.trim()) {
-      setError("Please enter at least one ticker symbol.");
+    if (selectedTickers.length < 2) {
+      setError("Please select at least 2 tickers for comparison.");
       return;
     }
 
@@ -58,15 +109,10 @@ export default function MomentumPage() {
     setResults(null);
 
     try {
-      const tickerList = tickers.split(',').map(t => t.trim().toUpperCase()).filter(t => t.length > 0);
-      
-      if (tickerList.length < 2) {
-        throw new Error("Please enter at least 2 tickers for comparison.");
-      }
-
+      // Pass the array directly (Backend expects 'tickers' as array)
       const { data, error } = await supabase.functions.invoke('momentum-backtest', {
         body: {
-          tickers: tickerList,
+          tickers: selectedTickers,
           lookback_months: lookbackMonths,
           top_n: topN,
           start_year: startYear
@@ -86,6 +132,7 @@ export default function MomentumPage() {
     }
   };
 
+  // --- Helpers for formatting ---
   const formatPercent = (value: number) => `${(value * 100).toFixed(2)}%`;
   const formatPercentColor = (value: number) => {
     const color = value >= 0 ? 'text-green-700' : 'text-red-700';
@@ -141,12 +188,68 @@ export default function MomentumPage() {
               <p>This strategy rotates monthly into the top-performing assets based on recent momentum. At the end of each month, it calculates the return over the lookback period and invests equally in the top N performers for the next month.</p>
               <p className="font-semibold">All results use dividend/split-adjusted prices and account for a 0.01% round-trip commission per trade.</p>
             </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Tickers (comma-separated)</label>
-                <input type="text" value={tickers} onChange={(e) => setTickers(e.target.value)} placeholder="SPY,TLT,GLD,EEM" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" />
-                <p className="text-xs text-gray-500 mt-1">Example: SPY,TLT,GLD,EEM (default momentum rotation universe)</p>
+            
+            <div className="space-y-6">
+              
+              {/* --- TICKER SELECTION DROPDOWN --- */}
+              <div ref={dropdownRef} className="relative">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Tickers (Max 8) <span className="text-blue-600 font-bold">{selectedTickers.length}/8</span>
+                </label>
+                
+                {/* Selection Box */}
+                <div 
+                  className="min-h-[50px] p-2 border border-gray-300 rounded-md bg-white flex flex-wrap gap-2 items-center cursor-text focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
+                  onClick={() => setIsDropdownOpen(true)}
+                >
+                  {/* Selected Pills */}
+                  {selectedTickers.map(ticker => (
+                    <div key={ticker} className="bg-blue-100 text-blue-800 text-sm font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                      {ticker}
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); removeTicker(ticker); }}
+                        className="text-blue-600 hover:text-blue-900 focus:outline-none"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {/* Search Input */}
+                  <input 
+                    type="text" 
+                    className="flex-grow min-w-[100px] outline-none text-sm text-gray-700 placeholder-gray-400 bg-transparent"
+                    placeholder={selectedTickers.length < 8 ? "Type to search..." : ""}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onFocus={() => setIsDropdownOpen(true)}
+                    disabled={selectedTickers.length >= 8}
+                  />
+                </div>
+
+                {/* Dropdown List */}
+                {isDropdownOpen && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                    {filteredSymbols.length === 0 ? (
+                      <div className="p-3 text-sm text-gray-500 text-center">No matching symbols found</div>
+                    ) : (
+                      filteredSymbols.map(sym => (
+                        <div 
+                          key={sym}
+                          onClick={() => toggleTicker(sym)}
+                          className="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition-colors"
+                        >
+                          {sym}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
+                {selectedTickers.length >= 8 && (
+                   <p className="text-xs text-orange-500 mt-1">Maximum of 8 symbols reached.</p>
+                )}
               </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Lookback (Months)</label>
@@ -161,6 +264,7 @@ export default function MomentumPage() {
                   <input type="number" value={startYear} onChange={(e) => setStartYear(parseInt(e.target.value))} min="1980" max={new Date().getFullYear()} className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none" />
                 </div>
               </div>
+
               <button onClick={handleRunBacktest} disabled={loading} className="w-full px-4 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors">
                 {loading ? "Running Backtest..." : "Run Backtest"}
               </button>

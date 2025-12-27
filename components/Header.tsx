@@ -69,13 +69,13 @@ export default function Header() {
                     href="/streaks-single" 
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100"
                   >
-                    Single Stock Analyzer
+                    Single Stock Streaks
                   </Link>
                   <Link 
                     href="/streaks-scanner" 
                     className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
                   >
-                    All Stocks Scanner
+                    All Stocks Current Streaks
                   </Link>
                </div>
             </div>

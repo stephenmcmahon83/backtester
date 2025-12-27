@@ -81,8 +81,8 @@ export default function Navbar() {
                 Streaks <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/streaks-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock Analyzer</Link>
-                <Link href="/streaks-scanner" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks Scanner</Link>
+                <Link href="/streaks-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock - All Streaks</Link>
+                <Link href="/streaks-scanner" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks - Current Streaks</Link>
               </div>
             </div>
 
