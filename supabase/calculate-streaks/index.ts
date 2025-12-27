@@ -1,4 +1,4 @@
-import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
         } else if (close < prevClose) {
           current = current <= 0 ? current - 1 : -1;
         } else {
-          current = 0; // Reset on unchanged (optional, or keep prev)
+          current = 0; // Reset on unchanged
         }
         streaks[i] = current;
       }
@@ -52,14 +52,17 @@ Deno.serve(async (req) => {
       if (!history || history.length < 100) throw new Error("Insufficient data");
 
       const streaks = calculateStreaks(history);
-      const buckets: Record<number, { sumRet: number[], wins: number[], count: number }> = {};
-      const forwardDays = [1, 2, 3, 5, 10]; // Days to look forward
+      
+      // ✅ NEW: Capture the current streak (last day)
+      const currentStreak = streaks[streaks.length - 1];
 
-      // Logic: If Streak is determined at Index i (Close), 
-      // Trade Enters at Index i+1 (Open), Exits at Index i+N (Close).
+      const buckets: Record<number, { sumRet: number[], wins: number[], count: number }> = {};
+      const forwardDays = [1, 2, 3, 5, 10]; 
+
+      // Backtest Logic
       for (let i = 0; i < history.length - 15; i++) {
         const sVal = streaks[i];
-        if (sVal === 0) continue; // Skip neutral days
+        if (sVal === 0) continue; 
 
         if (!buckets[sVal]) {
           buckets[sVal] = { 
@@ -69,14 +72,14 @@ Deno.serve(async (req) => {
           };
         }
 
-        const entryPrice = history[i + 1].open; // Buy Next Open
+        const entryPrice = history[i + 1].open; 
         if (!entryPrice) continue;
 
         forwardDays.forEach((daysForward, idx) => {
           const exitIdx = i + daysForward;
           if (exitIdx < history.length) {
             const exitPrice = history[exitIdx].close;
-            // 0.10% Roundtrip Commission: (Exit * 0.9995) - (Entry * 1.0005)
+            // 0.10% Commission
             const ret = ((exitPrice * 0.9995) - (entryPrice * 1.0005)) / (entryPrice * 1.0005);
             
             buckets[sVal].sumRet[idx] += ret;
@@ -86,7 +89,6 @@ Deno.serve(async (req) => {
         buckets[sVal].count++;
       }
 
-      // Format for Frontend
       const result = Object.keys(buckets).map(k => {
         const val = Number(k);
         const b = buckets[val];
@@ -101,6 +103,7 @@ Deno.serve(async (req) => {
 
       return new Response(JSON.stringify({ 
         ticker, 
+        currentStreak, // ✅ Sending this to frontend
         rows: result.sort((a,b) => a.streak_val - b.streak_val) 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -109,7 +112,6 @@ Deno.serve(async (req) => {
 
     // --- MODE B: ALL STOCKS SCANNER ---
     else {
-      // 1. Get all symbols
       const { data: symbolsData } = await supabaseClient.from('symbols').select('symbol');
       if (!symbolsData) throw new Error("No symbols found");
       const uniqueTickers = symbolsData.map(s => s.symbol);
@@ -124,27 +126,22 @@ Deno.serve(async (req) => {
 
           if (!history || history.length < 50) return null;
 
-          // 1. Determine Current Streak
           const streaks = calculateStreaks(history);
           const currentStreak = streaks[streaks.length - 1];
           if (currentStreak === 0) return null;
 
-          // 2. Backtest this specific streak value historically
           const forwardDays = [1, 2, 3, 5, 10];
           let count = 0;
           const sumRets = new Array(forwardDays.length).fill(0);
           const wins = new Array(forwardDays.length).fill(0);
 
-          // Iterate history to find matches
-          // Stop early enough to allow forward look + next open
           for (let i = 0; i < history.length - 15; i++) {
-             // We only care about past instances matching the CURRENT streak
              if (streaks[i] === currentStreak) {
-                const entryPrice = history[i + 1].open; // Buy Next Open
+                const entryPrice = history[i + 1].open; 
                 if (!entryPrice) continue;
 
                 forwardDays.forEach((daysForward, idx) => {
-                    const exitIdx = i + daysForward; // Exit Index
+                    const exitIdx = i + daysForward; 
                     if (exitIdx < history.length) {
                         const exitPrice = history[exitIdx].close;
                         const ret = ((exitPrice * 0.9995) - (entryPrice * 1.0005)) / (entryPrice * 1.0005);
@@ -156,7 +153,7 @@ Deno.serve(async (req) => {
              }
           }
 
-          if (count < 3) return null; // Filter out insignificant data
+          if (count < 3) return null; 
 
           const row: any = {
             symbol: sym,

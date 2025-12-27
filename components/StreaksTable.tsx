@@ -6,14 +6,13 @@ type ColumnDef = {
     header: string;
     accessorKey: string;
     isNumeric?: boolean;
-    // New: Allow specific color logic per column
     type?: 'return' | 'profitable'; 
 };
 
 type TableProps = {
     data: any[];
     columns: ColumnDef[];
-    // Removed global 'colorScaleType' prop in favor of per-column definition
+    highlightVal?: number | null; // ✅ NEW PROP
 };
 
 type SortConfig = {
@@ -21,7 +20,7 @@ type SortConfig = {
     direction: 'asc' | 'desc';
 } | null;
 
-export const StreaksTable = ({ data, columns }: TableProps) => {
+export const StreaksTable = ({ data, columns, highlightVal }: TableProps) => {
     
     const [sortConfig, setSortConfig] = useState<SortConfig>(null);
 
@@ -42,7 +41,6 @@ export const StreaksTable = ({ data, columns }: TableProps) => {
 
     const requestSort = (key: string) => {
         let direction: 'asc' | 'desc' = 'desc'; 
-        // Default to ascending for streak value so negatives show correctly in order
         if (key === 'streak_val' || key === 'current_streak' || key === 'symbol') direction = 'asc'; 
 
         if (sortConfig && sortConfig.key === key && sortConfig.direction === direction) {
@@ -58,13 +56,11 @@ export const StreaksTable = ({ data, columns }: TableProps) => {
         
         let backgroundColor = '';
         
-        // 1. Return Coloring (Green > 0, Red < 0)
         if (type === 'return') {
             if (value > 0) backgroundColor = `rgba(34, 197, 94, ${Math.min(value * 25, 0.6)})`; 
             else if (value < 0) backgroundColor = `rgba(239, 68, 68, ${Math.min(Math.abs(value) * 25, 0.6)})`;
         }
         
-        // 2. Win Rate Coloring (Green > 55%, Red < 45%)
         if (type === 'profitable') {
             if (value >= 0.55) {
                 const intensity = (value - 0.5) * 3;
@@ -87,7 +83,6 @@ export const StreaksTable = ({ data, columns }: TableProps) => {
     };
 
     return (
-        // Copy protection enabled via select-none
         <div className="overflow-auto border border-gray-200 rounded-lg max-h-[800px] shadow-sm bg-white select-none">
             <table className="min-w-full text-sm text-left text-gray-900 border-collapse">
                 <thead className="text-xs text-gray-500 uppercase bg-gray-50">
@@ -116,10 +111,16 @@ export const StreaksTable = ({ data, columns }: TableProps) => {
                 </thead>
                 <tbody>
                     {sortedData.map((row, rowIndex) => {
+                        // ✅ CHECK IF THIS ROW MATCHES THE CURRENT STREAK
+                        const isHighlighted = highlightVal !== undefined && highlightVal !== null && row.streak_val === highlightVal;
+
                         return (
                             <tr 
                                 key={rowIndex} 
-                                className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                className={`
+                                    border-b border-gray-100 hover:bg-gray-50 transition-colors
+                                    ${isHighlighted ? 'bg-blue-50 ring-2 ring-inset ring-blue-500 z-10 relative' : ''}
+                                `}
                             >
                                 {columns.map((col, index) => {
                                     const val = row[col.accessorKey];
@@ -131,6 +132,7 @@ export const StreaksTable = ({ data, columns }: TableProps) => {
                                             className={`
                                                 px-4 py-3 whitespace-nowrap 
                                                 ${isStickyLeft ? 'sticky left-0 z-10 bg-white border-r border-gray-200 font-bold text-gray-800' : ''}
+                                                ${isStickyLeft && isHighlighted ? '!bg-blue-50' : ''} 
                                             `}
                                             style={!isStickyLeft ? style : {}} 
                                         >

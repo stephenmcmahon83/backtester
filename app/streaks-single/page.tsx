@@ -14,6 +14,7 @@ export default function StreakSinglePage() {
     const [symbolList, setSymbolList] = useState<string[]>([]);
     
     const [data, setData] = useState<any[]>([]);
+    const [currentStreak, setCurrentStreak] = useState<number | null>(null); // ✅ State for current streak
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +43,7 @@ export default function StreakSinglePage() {
         const fetchData = async () => {
             setLoading(true);
             setError(null);
+            setCurrentStreak(null); // Reset
             
             try {
                 const { data: responseData, error: functionError } = await supabase.functions.invoke(
@@ -56,6 +58,11 @@ export default function StreakSinglePage() {
                 if (!responseData || !responseData.rows) throw new Error("No data returned");
 
                 setData(responseData.rows);
+                
+                // ✅ Update state with current streak from backend
+                if (responseData.currentStreak !== undefined) {
+                    setCurrentStreak(responseData.currentStreak);
+                }
 
             } catch (err: any) {
                 console.error("Error fetching data:", err);
@@ -71,7 +78,6 @@ export default function StreakSinglePage() {
     // 3. Define Combined Columns (Interleaved)
     const forwardDays = [1, 2, 3, 5, 10];
     
-    // Helper to generate paired columns (Return + Win %)
     const combinedColumns: any[] = [
         { header: 'Streak', accessorKey: 'streak_val' },
         { header: 'Trades', accessorKey: 'count' }
@@ -101,7 +107,7 @@ export default function StreakSinglePage() {
                 </p>
             </header>
             
-            <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex items-end gap-6">
+            <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-end gap-6">
                 <div>
                     <label className="block text-gray-700 text-sm font-bold mb-2">Select Ticker Symbol</label>
                     <div className="relative w-64">
@@ -119,6 +125,22 @@ export default function StreakSinglePage() {
                         </div>
                     </div>
                 </div>
+
+                {/* ✅ Current Streak Banner */}
+                {!loading && currentStreak !== null && (
+                    <div className="px-6 py-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm flex items-center gap-3">
+                         <span className="text-blue-600 font-bold text-lg">
+                            Current Streak: 
+                        </span>
+                        <span className={`text-2xl font-extrabold ${currentStreak > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {currentStreak > 0 ? `+${currentStreak}` : currentStreak}
+                        </span>
+                        <span className="text-xs text-blue-400 font-medium ml-1">
+                            (Highlighted in table)
+                        </span>
+                    </div>
+                )}
+
                 {loading && <span className="mb-3 text-blue-600 text-sm font-medium">Analyzing historical streaks...</span>}
             </div>
 
@@ -132,10 +154,11 @@ export default function StreakSinglePage() {
                             Combined view of average returns and win rates by streak count.
                         </p>
                     </div>
-                    {/* ✅ CORRECTED: No colorScaleType prop here */}
+                    {/* ✅ Pass the highlight prop */}
                     <StreaksTable 
                         data={data} 
                         columns={combinedColumns} 
+                        highlightVal={currentStreak}
                     />
                 </section>
             )}
