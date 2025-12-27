@@ -82,7 +82,7 @@ export default function MomentumPage() {
     if (selectedTickers.includes(ticker)) {
       setSelectedTickers(prev => prev.filter(t => t !== ticker));
     } else {
-      if (selectedTickers.length >= 8) return; // Limit to 8
+      if (selectedTickers.length >= 6) return; // ✅ UPDATED: Limit to 6
       setSelectedTickers(prev => [...prev, ticker]);
       setSearchTerm(""); // Reset search after selection for easier UX
     }
@@ -194,7 +194,8 @@ export default function MomentumPage() {
               {/* --- TICKER SELECTION DROPDOWN --- */}
               <div ref={dropdownRef} className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Tickers (Max 8) <span className="text-blue-600 font-bold">{selectedTickers.length}/8</span>
+                  {/* ✅ UPDATED: Label Limit */}
+                  Select Tickers (Max 6) <span className="text-blue-600 font-bold">{selectedTickers.length}/6</span>
                 </label>
                 
                 {/* Selection Box */}
@@ -219,11 +220,13 @@ export default function MomentumPage() {
                   <input 
                     type="text" 
                     className="flex-grow min-w-[100px] outline-none text-sm text-gray-700 placeholder-gray-400 bg-transparent"
-                    placeholder={selectedTickers.length < 8 ? "Type to search..." : ""}
+                    // ✅ UPDATED: Placeholder logic
+                    placeholder={selectedTickers.length < 6 ? "Type to search..." : ""}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     onFocus={() => setIsDropdownOpen(true)}
-                    disabled={selectedTickers.length >= 8}
+                    // ✅ UPDATED: Disable logic
+                    disabled={selectedTickers.length >= 6}
                   />
                 </div>
 
@@ -245,8 +248,9 @@ export default function MomentumPage() {
                     )}
                   </div>
                 )}
-                {selectedTickers.length >= 8 && (
-                   <p className="text-xs text-orange-500 mt-1">Maximum of 8 symbols reached.</p>
+                {/* ✅ UPDATED: Warning Limit */}
+                {selectedTickers.length >= 6 && (
+                   <p className="text-xs text-orange-500 mt-1">Maximum of 6 symbols reached.</p>
                 )}
               </div>
 
