@@ -41,6 +41,18 @@ export default function Navbar() {
           {/* DESKTOP MENU (Hidden on Mobile) */}
           <div className="hidden md:flex items-center gap-2">
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
+            
+            {/* ✅ NEW FUNDAMENTALS DROPDOWN (Placed before separator) */}
+            <div className="relative group z-50">
+              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
+                Fundamentals <span className="text-xs">▼</span>
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/valuation" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Stock Financials/Valuation Tool</Link>
+              </div>
+            </div>
+
+            {/* SEPARATOR */}
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
             
             {/* Desktop Dropdown 1: Single Stock */}
@@ -93,7 +105,7 @@ export default function Navbar() {
               <Link href="/disclaimer" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Disclaimer</Link>
             </div>
 
-            {/* ✅ DONATE BUTTON (Desktop) */}
+            {/* Donate Button */}
             <a 
               href="https://www.buymeacoffee.com/finbacktester.com" 
               target="_blank" 
@@ -128,6 +140,22 @@ export default function Navbar() {
             <Link href="/" className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50" onClick={toggleMenu}>
               Home
             </Link>
+
+            {/* ✅ NEW MOBILE FUNDAMENTALS */}
+            <div>
+              <button 
+                onClick={() => toggleDropdown('fundamentals')} 
+                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                Fundamentals
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'fundamentals' ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {activeDropdown === 'fundamentals' && (
+                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
+                  <Link href="/valuation" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Stock Financials/Valuation Tool</Link>
+                </div>
+              )}
+            </div>
 
             {/* Mobile Dropdown 1 */}
             <div>
@@ -179,7 +207,7 @@ export default function Navbar() {
               )}
             </div>
 
-             {/* Mobile Dropdown 4: Streaks (NEW) */}
+             {/* Mobile Dropdown 4: Streaks */}
              <div>
               <button 
                 onClick={() => toggleDropdown('streaks')} 
@@ -198,7 +226,7 @@ export default function Navbar() {
 
             <div className="border-t border-gray-200 my-2"></div>
             
-            {/* ✅ DONATE BUTTON (Mobile) */}
+            {/* Donate Mobile */}
              <a 
               href="https://www.buymeacoffee.com/finbacktester.com" 
               target="_blank" 
