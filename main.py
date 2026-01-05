@@ -197,7 +197,17 @@ async def fetch_valuation_data(ticker: str):
                 continue
 
             # --- Base Metrics ---
-            rev_native = bank_revenue(inc, p) if is_fin else get_val(inc, ['Revenues', 'Revenue', 'NetSales', 'TotalNetSales', 'SalesRevenueNet'], p)
+            # UPDATED HERE TO INCLUDE ASC 606 TAGS
+            rev_native = bank_revenue(inc, p) if is_fin else get_val(inc, [
+                'RevenueFromContractWithCustomerExcludingAssessedTax',
+                'RevenueFromContractWithCustomerIncludingAssessedTax',
+                'Revenues',
+                'Revenue',
+                'NetSales',
+                'TotalNetSales',
+                'SalesRevenueNet'
+            ], p)
+
             ni_native = get_val(inc, ['NetIncomeLoss', 'NetIncomeLossAvailableToCommonStockholdersBasic', 'ProfitLoss'], p)
             eps_native = get_val(inc, ['EarningsPerShareBasic', 'EarningsPerShareBasicAndDiluted', 'EarningsPerShareDiluted'], p)
             
