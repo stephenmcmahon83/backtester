@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -218,6 +219,13 @@ export default function FinancialsPage() {
 
     return (
         <div className="p-8 max-w-[1800px] mx-auto min-h-screen bg-gray-50">
+            <Script
+                async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+            />
+
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Corporate Valuation (20-Year)</h1>
             
             <div className="flex gap-4 mb-8">

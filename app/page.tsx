@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Script from 'next/script';
 import { createClient } from "@supabase/supabase-js";
 
 type SnapshotRow = {
@@ -137,6 +138,13 @@ export default function HomePage() {
   return (
     // --- ADDED: select-none class to prevent text highlighting ---
     <div className="bg-white min-h-screen select-none">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Market Snapshot</h1>
         <p className="mt-2 text-gray-500">

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { createClient } from "@supabase/supabase-js";
 import SnapshotTable from '@/components/SnapshotTable'; // Your path might differ slightly
 
@@ -62,6 +63,13 @@ export default function SnapshotPage() {
 
     return (
         <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white">
+            <Script
+                async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+            />
+
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Seasonality Snapshot</h1>
                 <p className="text-gray-500">

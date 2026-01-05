@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
+import Script from 'next/script';
 import { createSupabaseBrowserClient } from '@/lib/supabase/client';
 import { Line } from 'react-chartjs-2';
 import {
@@ -177,6 +178,13 @@ export default function MomentumPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
+
       <main className="container mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col items-center">
           {/* Input Section */}

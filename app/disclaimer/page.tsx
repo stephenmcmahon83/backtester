@@ -1,6 +1,15 @@
+import Script from 'next/script';
+
 export default function DisclaimerPage() {
   return (
     <div className="bg-white">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
+      
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="prose prose-indigo max-w-none">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">

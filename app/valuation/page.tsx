@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Script from "next/script";
 import {
   ComposedChart,
   Line,
@@ -127,6 +128,13 @@ export default function StockAnalyzer() {
   /* ------- UI ------- */
   return (
     <div className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
+
       {/* header */}
       <Header
         ticker={ticker} setTicker={setTicker}

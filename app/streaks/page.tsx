@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import Script from 'next/script';
 
 // --- Constants ---
 const COMMISSION_ROUND_TRIP = 0.0010; // 0.10% deducted from total P&L
@@ -201,6 +202,12 @@ export default function StreaksPage() {
 
   return (
     <div className="space-y-6">
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row justify-between items-end gap-4">

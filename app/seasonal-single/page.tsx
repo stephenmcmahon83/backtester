@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Script from 'next/script';
 import { createClient } from '@supabase/supabase-js';
 // Ensure this path points to the component we updated in Step 1
 import { SeasonalTable } from '@/components/SeasonalTable'; 
@@ -122,6 +123,13 @@ export default function SeasonalSinglePage() {
 
     return (
         <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white">
+            <Script
+                async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
+                crossOrigin="anonymous"
+                strategy="afterInteractive"
+            />
+
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Stock Seasonality Analysis (Single Ticker)</h1>
                 <p className="text-gray-500">Analyze historical performance patterns for any symbol over a 20-day forward lookback period.</p>
