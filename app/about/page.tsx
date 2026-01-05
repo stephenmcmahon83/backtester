@@ -32,7 +32,7 @@ export default function AboutPage() {
               </p>
               <p className="text-gray-700 text-sm">
                 If you've found value in these tools and want to support the project, any donation is greatly appreciated—it helps 
-                keep the lights on and the data flowing. Please do not feel any pressure to do so though.
+                keep the lights on and the data flowing. 
               </p>
             </div>
             <div className="flex-shrink-0">
