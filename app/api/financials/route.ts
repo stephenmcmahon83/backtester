@@ -129,7 +129,7 @@ export async function POST(request: Request) {
         const payload = {
             price: 0, 
             overview: {
-                MarketCapitalization: (latest.sharesOutstanding || 0) * (latest.stockPrice || 0),
+                MarketCapitalization: (latest.sharesOutstanding || 0) * ((latest as any).stockPrice || 0),
                 EPS: latest.eps,
                 BookValue: latest.bookValue,
                 Description: "Auto-Imported via FMP"
