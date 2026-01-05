@@ -178,12 +178,6 @@ export default function MomentumPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 font-sans">
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
 
       <main className="container mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col items-center">

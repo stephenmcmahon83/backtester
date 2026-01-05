@@ -121,13 +121,6 @@ export default function MeanReversionPage() {
       {/* 2. AdSense Script placed here. 
           strategy="afterInteractive" loads it immediately after the page is usable, 
           preventing performance blocks. */}
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
-
       <main className="container mx-auto max-w-7xl bg-white p-6 rounded-lg shadow-xl">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-extrabold text-gray-900">Mean Reversion Backtester</h1>

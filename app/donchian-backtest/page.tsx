@@ -131,12 +131,6 @@ export default function DonchianBacktestPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-8 font-sans">
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
 
       <main className="container mx-auto max-w-6xl bg-white p-6 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Donchian Channel Backtester</h1>

@@ -123,12 +123,6 @@ export default function SeasonalSinglePage() {
 
     return (
         <div className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white">
-            <Script
-                async
-                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
-                crossOrigin="anonymous"
-                strategy="afterInteractive"
-            />
 
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Stock Seasonality Analysis (Single Ticker)</h1>
