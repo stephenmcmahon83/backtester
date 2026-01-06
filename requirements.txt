@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+edgar-tools
+yfinance
+pandas
+numpy
+requests
