@@ -32,6 +32,10 @@ interface ValuationData {
   overview: { isFinancial: boolean; Description: string }; history: HistoryItem[];
 }
 
+/* ---------- CONFIG ---------- */
+// This is your live Render Backend URL
+const BACKEND_URL = "https://valuation-backend-xvuh.onrender.com";
+
 /* ---------- Component ---------- */
 export default function StockAnalyzer() {
   const [ticker, setTicker] = useState("");
@@ -45,8 +49,13 @@ export default function StockAnalyzer() {
     setLoading(true); setError(""); setData(null);
 
     try {
-      const r = await fetch(`http://localhost:8000/fetch-valuation-data/${ticker}`);
-      if (!r.ok) throw new Error(`Server ${r.status}`);
+      // UPDATED: Using the Render URL instead of localhost
+      const r = await fetch(`${BACKEND_URL}/fetch-valuation-data/${ticker}`);
+      
+      if (!r.ok) {
+        throw new Error(`Server Error: ${r.status}. The backend might be waking up (wait 1 min) or the ticker is invalid.`);
+      }
+      
       const j = await r.json();
       
       const sorted = [...j.data.history].sort((a: HistoryItem, b: HistoryItem) =>
@@ -54,8 +63,11 @@ export default function StockAnalyzer() {
       );
       
       setData({ ...j.data, history: sorted });
-    } catch (e: any) { setError(e.message) }
-    finally { setLoading(false); }
+    } catch (e: any) { 
+      setError(e.message) 
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   /* ------- Chart Data Construction ------- */
@@ -104,7 +116,7 @@ export default function StockAnalyzer() {
     });
   }, [data]);
 
-  /* ------- X-Axis Ticks Calculation (Fixes repeating years) ------- */
+  /* ------- X-Axis Ticks Calculation ------- */
   const xAxisTicks = useMemo(() => {
     if (!chartPoints.length) return [];
     
@@ -119,7 +131,7 @@ export default function StockAnalyzer() {
         const year = point.date.substring(0, 4);
         if (!seenYears.has(year)) {
             seenYears.add(year);
-            ticks.push(point.date); // Add the specific date string (e.g. "2020-01-30") as the tick
+            ticks.push(point.date); 
         }
     });
     return ticks;
@@ -136,7 +148,7 @@ export default function StockAnalyzer() {
         onSearch={handleSearch}
       />
 
-      {loading && <Alert color="blue" msg={`Analyzing ${ticker}…`} />}
+      {loading && <Alert color="blue" msg={`Analyzing ${ticker}… (Note: If this is the first search in 15 mins, it may take 45 seconds to wake up the server)`} />}
       {error && <Alert color="red" msg={error} />}
 
       {data && !loading && (
@@ -209,7 +221,7 @@ function Chart({ points, history, customTicks }: { points: any[], history: Histo
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
               <XAxis 
                 dataKey="date" 
-                ticks={customTicks} // Uses our calculated unique ticks
+                ticks={customTicks} 
                 tick={{ fontSize: 11 }} 
                 tickFormatter={(val) => val === "Now" ? "Now" : val.substring(0, 4)} 
               />
@@ -248,7 +260,7 @@ function Chart({ points, history, customTicks }: { points: any[], history: Histo
   );
 }
 
-/* ---------- Financial Table (UPDATED ORDER) ---------- */
+/* ---------- Financial Table ---------- */
 function FinancialTable({ data }: { data: ValuationData }) {
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -275,7 +287,6 @@ function FinancialTable({ data }: { data: ValuationData }) {
             <Row label="Rev / Share" data={data.history} field="revenuePerShare" fmt={fmtNum} />
             <Row label="Book Value" data={data.history} field="bookValue" fmt={fmtNum} />
             
-            {/* Moved to the bottom of Per Share Data section */}
             <Row label="Stock Price High" data={data.history} field="yearHigh" fmt={fmtNum} />
             <Row label="Stock Price Low" data={data.history} field="yearLow" fmt={fmtNum} />
             <Row label="15x EPS" data={data.history} field="fairValue" fmt={fmtNum} highlight />
@@ -311,7 +322,6 @@ const TooltipBox = ({ active, payload, label, history }: any) => {
   const priceItem = payload.find((p: any) => p.dataKey === 'price');
   const price = priceItem ? priceItem.value : null;
 
-  // Smart Lookup for Fair Value
   let fairItem = payload.find((p: any) => p.dataKey === 'fairValue');
   let fair = fairItem ? fairItem.value : null;
 
