@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-// 1. Import the Script component from Next.js
-import Script from 'next/script';
+import Head from 'next/head';
 import { createClient } from "@supabase/supabase-js";
 import { Line } from 'react-chartjs-2';
 import {
@@ -78,6 +77,39 @@ export default function MeanReversionPage() {
   const yearOptions = ['all'];
   for (let y = new Date().getFullYear(); y >= 1990; y--) { yearOptions.push(y.toString()); }
 
+  // --- Copy/Paste Protection ---
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) && 
+        ['c', 'v', 'x', 'a', 'u', 's'].includes(e.key.toLowerCase())
+      ) {
+        e.preventDefault();
+      }
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+      }
+    };
+    const handleSelectStart = (e: Event) => e.preventDefault();
+    const handleDragStart = (e: Event) => e.preventDefault();
+    const handleCopy = (e: Event) => e.preventDefault();
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('copy', handleCopy);
+    };
+  }, []);
+
   useEffect(() => {
     const fetchTickers = async () => {
       try {
@@ -117,131 +149,192 @@ export default function MeanReversionPage() {
     : 0;
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-8 font-sans text-gray-900">
-      {/* 2. AdSense Script placed here. 
-          strategy="afterInteractive" loads it immediately after the page is usable, 
-          preventing performance blocks. */}
-      <main className="container mx-auto max-w-7xl bg-white p-6 rounded-lg shadow-xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900">Mean Reversion Backtester</h1>
-          <p className="text-gray-500 mt-2">Trades execute at Next Day Open and includes 0.10% round-trip commission. Assumes profits are reinvested.</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-4 items-end gap-4 mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Ticker</label>
-            {loadingTickers ? <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div> : (
-              <select 
-                value={selectedTicker} 
-                onChange={(e) => setSelectedTicker(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer"
-              >
-                {tickerList.map(ticker => (<option key={ticker} value={ticker}>{ticker}</option>))}
-              </select>
-            )}
+    <>
+      {/* SEO Meta Tags */}
+      <Head>
+        <title>Mean Reversion Backtester | RSI, Bollinger Band & Connors Strategy Testing</title>
+        <meta 
+          name="description" 
+          content="Backtest classic mean reversion strategies including RSI extremes, Bollinger %B, and Connors-style setups. See historical win rates, drawdowns, and trade-by-trade results with commission costs included." 
+        />
+        <meta name="keywords" content="mean reversion, RSI strategy, Bollinger Bands, Connors RSI, oversold bounce, stock backtester, swing trading, technical analysis" />
+        <meta name="robots" content="index, follow" />
+      </Head>
+
+      <div 
+        className="min-h-screen bg-gray-100 p-4 sm:p-8 font-sans text-gray-900"
+        style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
+      >
+        <main className="container mx-auto max-w-7xl bg-white p-6 rounded-lg shadow-xl">
+          <div className="mb-8 text-center">
+            <h1 className="text-3xl font-extrabold text-gray-900">Mean Reversion Backtester</h1>
+            <p className="text-gray-500 mt-2">Trades execute at Next Day Open and includes 0.10% round-trip commission. Assumes profits are reinvested.</p>
           </div>
           
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-1">Start Year</label>
-            <select value={startYear} onChange={(e) => setStartYear(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer">
-              {yearOptions.map(year => ( <option key={year} value={year}>{year === 'all' ? 'All Data' : year}</option>))}
-            </select>
-          </div>
-
-          <div className="md:col-span-1">
-            <label className="block text-sm font-bold text-gray-700 mb-1">Strategy</label>
-            <select value={strategy} onChange={(e) => setStrategy(e.target.value as StrategyType)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer">
-              <option value="rsi-4">RSI(4) Extremes</option>
-              <option value="r3">R3 Method (RSI-2 Streak)</option>
-              <option value="pct-b">Bollinger %B</option>
-              <option value="multi-day">Multi-Day Down</option>
-              <option value="rsi-10-6">RSI(2) 10/6 Crash</option>
-              <option value="3-low-high">3-Day Low/High</option>
-              <option value="5-low-high">5-Day Low/High</option>
-              <option value="10-low-high">10-Day Low/High</option>
-            </select>
-          </div>
-
-          <div>
-            <button onClick={handleRunBacktest} disabled={loading || loadingTickers || !selectedTicker}
-              className="w-full px-8 py-2 bg-indigo-600 text-white font-bold rounded-md hover:bg-indigo-700 disabled:bg-gray-400 transition-colors shadow-md">
-              Run Backtest
-            </button>
-          </div>
-        </div>
-        
-        <div className="mb-8 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-md text-indigo-900 text-sm">
-          <span className="font-bold">Logic:</span> {STRATEGY_DESCRIPTIONS[strategy]}
-        </div>
-
-        {error && (<div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 text-red-700" role="alert"><p className="font-bold">Error</p><p>{error}</p></div>)}
-        
-        {results && (
-          <div className="space-y-12 animate-fade-in">
-            <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-md">
-              <BacktestChart data={results} title={`Performance for ${selectedTicker.toUpperCase()} - ${strategy.replace(/-/g, ' ').toUpperCase()}`} />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div>
-                    <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Performance Summary</h2>
-                    <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm mb-8">
-                        <table className="min-w-full divide-y divide-gray-200 text-sm">
-                           {/* Table content adapted from example */}
-                           <thead className="bg-gray-50"><tr><th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th></tr></thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Total Return</td><td className={`px-4 py-3 text-right font-bold ${results.strategyTotalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatWholePercent(results.strategyTotalReturn)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Max Drawdown</td><td className="px-4 py-3 text-right text-red-600 font-medium">{formatWholePercent(results.strategyMaxDrawdown)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable Years</td><td className="px-4 py-3 text-right text-gray-700 font-medium">{formatWholePercent(results.profitableYearsPct)}</td></tr>
-                                
-                                <tr className="bg-gray-50"><td colSpan={2} className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">Current Status</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Position</td><td className={`px-4 py-3 text-right font-bold ${results.isHolding ? 'text-blue-600' : 'text-gray-400'}`}>{results.isHolding ? "IN POSITION" : "CASH"}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Signal for Tomorrow</td><td className={`px-4 py-3 text-right font-bold ${results.pendingAction === 'BUY' ? 'text-green-600' : results.pendingAction === 'SELL' ? 'text-red-600' : 'text-gray-400'}`}>{results.pendingAction}</td></tr>
-                                
-                                <tr className="bg-gray-50"><td colSpan={2} className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">Trade Stats</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return / Trade</td><td className={`px-4 py-3 text-right ${avgTradeReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(avgTradeReturn)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable Trades</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRate)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return after Win</td><td className={`px-4 py-3 text-right ${results.avgReturnAfterWin >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(results.avgReturnAfterWin)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable after Win</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRateAfterWin)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return after Loss</td><td className={`px-4 py-3 text-right ${results.avgReturnAfterLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(results.avgReturnAfterLoss)}</td></tr>
-                                <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable after Loss</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRateAfterLoss)}</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div>
-                    <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Yearly Performance</h2>
-                    <div className="overflow-auto max-h-[500px] border border-gray-200 rounded-lg shadow-sm">
-                        <table className="min-w-full divide-y divide-gray-200 relative">
-                            <thead className="bg-gray-50 sticky top-0 shadow-sm z-10"><tr><th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Return</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Win Rate</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"># Trades</th></tr></thead>
-                            <tbody className="bg-white divide-y divide-gray-200 text-sm">
-                            {results.yearlyStats.map((stat) => (<tr key={stat.year} className="hover:bg-gray-50"><td className="px-4 py-3 font-bold text-gray-900">{stat.year}</td><td className={`px-4 py-3 text-right font-bold ${stat.return >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(stat.return)}</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(stat.winRate)}</td><td className="px-4 py-3 text-right text-gray-700">{stat.count}</td></tr>))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 items-end gap-4 mb-8 p-6 bg-slate-50 rounded-xl border border-slate-200 shadow-sm">
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Trade Log</h2>
-              <div className="overflow-auto h-[500px] border border-gray-200 rounded-lg shadow-sm">
-                <table className="min-w-full divide-y divide-gray-200 relative">
-                  <thead className="bg-gray-50 sticky top-0 shadow-sm z-10"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entry Date</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exit Date</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Entry ($)</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Exit ($)</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Return</th></tr></thead>
-                  <tbody className="bg-white divide-y divide-gray-200 text-sm">
-                    {results.trades.slice().reverse().map((trade, index) => (<tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{trade.entryDate}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-gray-700">{trade.exitDate}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-gray-700">{trade.entryPrice.toFixed(2)}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-gray-700">{trade.exitPrice.toFixed(2)}</td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-right font-bold ${trade.return >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(trade.return)}</td>
-                    </tr>))}
-                  </tbody>
-                </table>
-              </div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Ticker</label>
+              {loadingTickers ? <div className="h-10 w-full bg-gray-200 rounded animate-pulse"></div> : (
+                <select 
+                  value={selectedTicker} 
+                  onChange={(e) => setSelectedTicker(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer"
+                >
+                  {tickerList.map(ticker => (<option key={ticker} value={ticker}>{ticker}</option>))}
+                </select>
+              )}
+            </div>
+            
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">Start Year</label>
+              <select value={startYear} onChange={(e) => setStartYear(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer">
+                {yearOptions.map(year => ( <option key={year} value={year}>{year === 'all' ? 'All Data' : year}</option>))}
+              </select>
+            </div>
+
+            <div className="md:col-span-1">
+              <label className="block text-sm font-bold text-gray-700 mb-1">Strategy</label>
+              <select value={strategy} onChange={(e) => setStrategy(e.target.value as StrategyType)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 bg-white outline-none cursor-pointer">
+                <option value="rsi-4">RSI(4) Extremes</option>
+                <option value="r3">R3 Method (RSI-2 Streak)</option>
+                <option value="pct-b">Bollinger %B</option>
+                <option value="multi-day">Multi-Day Down</option>
+                <option value="rsi-10-6">RSI(2) 10/6 Crash</option>
+                <option value="3-low-high">3-Day Low/High</option>
+                <option value="5-low-high">5-Day Low/High</option>
+                <option value="10-low-high">10-Day Low/High</option>
+              </select>
+            </div>
+
+            <div>
+              <button onClick={handleRunBacktest} disabled={loading || loadingTickers || !selectedTicker}
+                className="w-full px-8 py-2 bg-indigo-600 text-white font-bold rounded-md hover:bg-indigo-700 disabled:bg-gray-400 transition-colors shadow-md">
+                Run Backtest
+              </button>
             </div>
           </div>
-        )}
-      </main>
-    </div>
+          
+          <div className="mb-8 p-4 bg-indigo-50 border-l-4 border-indigo-500 rounded-r-md text-indigo-900 text-sm">
+            <span className="font-bold">Logic:</span> {STRATEGY_DESCRIPTIONS[strategy]}
+          </div>
+
+          {error && (<div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 text-red-700" role="alert"><p className="font-bold">Error</p><p>{error}</p></div>)}
+          
+          {results && (
+            <div className="space-y-12 animate-fade-in">
+              <div className="p-4 border border-gray-200 rounded-lg bg-white shadow-md">
+                <BacktestChart data={results} title={`Performance for ${selectedTicker.toUpperCase()} - ${strategy.replace(/-/g, ' ').toUpperCase()}`} />
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div>
+                      <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Performance Summary</h2>
+                      <div className="overflow-hidden border border-gray-200 rounded-lg shadow-sm mb-8">
+                          <table className="min-w-full divide-y divide-gray-200 text-sm">
+                             <thead className="bg-gray-50"><tr><th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metric</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th></tr></thead>
+                              <tbody className="bg-white divide-y divide-gray-200">
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Total Return</td><td className={`px-4 py-3 text-right font-bold ${results.strategyTotalReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatWholePercent(results.strategyTotalReturn)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Max Drawdown</td><td className="px-4 py-3 text-right text-red-600 font-medium">{formatWholePercent(results.strategyMaxDrawdown)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable Years</td><td className="px-4 py-3 text-right text-gray-700 font-medium">{formatWholePercent(results.profitableYearsPct)}</td></tr>
+                                  
+                                  <tr className="bg-gray-50"><td colSpan={2} className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">Current Status</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Position</td><td className={`px-4 py-3 text-right font-bold ${results.isHolding ? 'text-blue-600' : 'text-gray-400'}`}>{results.isHolding ? "IN POSITION" : "CASH"}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Signal for Tomorrow</td><td className={`px-4 py-3 text-right font-bold ${results.pendingAction === 'BUY' ? 'text-green-600' : results.pendingAction === 'SELL' ? 'text-red-600' : 'text-gray-400'}`}>{results.pendingAction}</td></tr>
+                                  
+                                  <tr className="bg-gray-50"><td colSpan={2} className="px-4 py-2 text-xs font-bold text-gray-500 uppercase">Trade Stats</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return / Trade</td><td className={`px-4 py-3 text-right ${avgTradeReturn >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(avgTradeReturn)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable Trades</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRate)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return after Win</td><td className={`px-4 py-3 text-right ${results.avgReturnAfterWin >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(results.avgReturnAfterWin)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable after Win</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRateAfterWin)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">Avg Return after Loss</td><td className={`px-4 py-3 text-right ${results.avgReturnAfterLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(results.avgReturnAfterLoss)}</td></tr>
+                                  <tr><td className="px-4 py-3 font-medium text-gray-900">% Profitable after Loss</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(results.winRateAfterLoss)}</td></tr>
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+                  <div>
+                      <h2 className="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Yearly Performance</h2>
+                      <div className="overflow-auto max-h-[500px] border border-gray-200 rounded-lg shadow-sm">
+                          <table className="min-w-full divide-y divide-gray-200 relative">
+                              <thead className="bg-gray-50 sticky top-0 shadow-sm z-10"><tr><th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Year</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Return</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Win Rate</th><th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase"># Trades</th></tr></thead>
+                              <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                              {results.yearlyStats.map((stat) => (<tr key={stat.year} className="hover:bg-gray-50"><td className="px-4 py-3 font-bold text-gray-900">{stat.year}</td><td className={`px-4 py-3 text-right font-bold ${stat.return >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(stat.return)}</td><td className="px-4 py-3 text-right text-gray-700">{formatWholePercent(stat.winRate)}</td><td className="px-4 py-3 text-right text-gray-700">{stat.count}</td></tr>))}
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Trade Log</h2>
+                <div className="overflow-auto h-[500px] border border-gray-200 rounded-lg shadow-sm">
+                  <table className="min-w-full divide-y divide-gray-200 relative">
+                    <thead className="bg-gray-50 sticky top-0 shadow-sm z-10"><tr><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entry Date</th><th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exit Date</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Entry ($)</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Exit ($)</th><th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Return</th></tr></thead>
+                    <tbody className="bg-white divide-y divide-gray-200 text-sm">
+                      {results.trades.slice().reverse().map((trade, index) => (<tr key={index} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700">{trade.entryDate}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-700">{trade.exitDate}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-gray-700">{trade.entryPrice.toFixed(2)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-gray-700">{trade.exitPrice.toFixed(2)}</td>
+                        <td className={`px-6 py-4 whitespace-nowrap text-right font-bold ${trade.return >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatPercent(trade.return)}</td>
+                      </tr>))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* --- EDUCATIONAL CONTENT SECTION --- */}
+              <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">How Mean Reversion Strategies Work</h2>
+                
+                <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                  <p>
+                    Mean reversion is the opposite of trend following. Instead of jumping on a move and riding it, you're betting that prices have stretched too far in one direction and are due to snap back. The logic is rooted in market psychology: when a stock drops sharply over a few days, fear tends to overshoot fundamentals, creating a buying opportunity. When it rallies too fast, greed takes over and a pullback becomes likely. These strategies try to systematically identify those moments of overextension and profit from the bounce.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Strategy Types Explained</h3>
+
+                  <p>
+                    <strong>RSI-based strategies</strong> use the Relative Strength Index, a momentum oscillator that measures how overbought or oversold a stock is on a scale from 0 to 100. The RSI(4) Extremes strategy enters when the 4-day RSI drops below 25—meaning the stock has been unusually weak—and exits when it recovers above 55. The R3 Method is more aggressive: it requires RSI(2) to decline for three consecutive days and fall below 10, signaling extreme short-term weakness. The RSI 10/6 Crash is the most extreme of all, requiring yesterday's RSI(2) to be under 10 and today's to drop below 6. These setups are rare but historically powerful.
+                  </p>
+
+                  <p>
+                    <strong>Bollinger %B</strong> measures where the current price sits relative to its Bollinger Bands. A %B below 0.2 means the stock is trading near the lower band—two standard deviations below its moving average. The strategy enters at that point and exits when %B climbs to 0.8, near the upper band. It's a volatility-adjusted way to identify oversold conditions that accounts for how much the stock normally moves.
+                  </p>
+
+                  <p>
+                    <strong>Multi-Day Down</strong> is purely price-based. If the stock has closed lower on 4 of the last 5 days, it enters a long position. The exit comes when price crosses back above its 5-day simple moving average. It's a straightforward way to catch short-term capitulation without relying on any indicators beyond price itself.
+                  </p>
+
+                  <p>
+                    <strong>N-Day Low/High strategies</strong> (3-day, 5-day, 10-day) combine mean reversion with a trend filter. They only enter when the stock makes a new N-day low while still trading above its 200-day moving average. The 200 SMA filter ensures you're buying dips in stocks that are in longer-term uptrends, avoiding falling knives in bear markets. The exit comes when price makes a new N-day high, capturing the snapback.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Reading the Results</h3>
+
+                  <p>
+                    The equity curve shows how your account would have grown over time, starting with $1,000 and reinvesting all profits. It's plotted on a log scale so that percentage gains look proportional regardless of account size. The Performance Summary gives you the key numbers: total return, maximum drawdown, and what percentage of years were profitable. Pay attention to the "after Win" and "after Loss" stats—they reveal whether the strategy clusters wins and losses or if outcomes are more random. A high win rate after a loss, for example, suggests the strategy tends to recover quickly.
+                  </p>
+
+                  <p>
+                    The Current Status section is unique to mean reversion. It tells you whether the strategy is currently in a position and whether a new signal has triggered for tomorrow's open. If you see "BUY" under Signal for Tomorrow, that means today's close met the entry criteria and the backtest would execute a buy at tomorrow's open. This gives you real-time context for how the system would behave going forward.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Trade Execution and Costs</h3>
+
+                  <p>
+                    Every signal generated by these strategies assumes execution at the next day's opening price. When the RSI drops below the threshold today, you can't act until tomorrow—so the backtest enters at tomorrow's open. Exits work the same way. This is more realistic than assuming you could magically trade at the exact moment the signal triggers. Each trade also includes a 0.10% round-trip commission to account for spreads and broker fees. Profits are fully reinvested, so position sizes grow as the equity curve rises.
+                  </p>
+
+                  <p>
+                    Mean reversion strategies tend to have higher win rates than trend-following systems—often 60% or higher—but the average win is usually smaller than the average loss. That's the nature of the game: you're betting on quick bounces, not extended trends. The key to profitability is making sure your winners, though small, happen frequently enough to overcome the occasional larger loss. Review the trade log to get a feel for how long positions typically last and how the wins and losses distribute over time.
+                  </p>
+                </div>
+              </section>
+            </div>
+          )}
+        </main>
+      </div>
+    </>
   );
 }

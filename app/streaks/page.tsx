@@ -175,6 +175,39 @@ export default function StreaksPage() {
 
   useEffect(() => { handleAnalyze(); }, []);
 
+  // --- Copy/Paste Protection ---
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.ctrlKey || e.metaKey) && 
+        ['c', 'v', 'x', 'a', 'u', 's'].includes(e.key.toLowerCase())
+      ) {
+        e.preventDefault();
+      }
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+      }
+    };
+    const handleSelectStart = (e: Event) => e.preventDefault();
+    const handleDragStart = (e: Event) => e.preventDefault();
+    const handleCopy = (e: Event) => e.preventDefault();
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('copy', handleCopy);
+    };
+  }, []);
+
   const handleAnalyze = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -201,7 +234,10 @@ export default function StreaksPage() {
     }) || [];
 
   return (
-    <div className="space-y-6">
+    <div 
+      className="space-y-6"
+      style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
+    >
       
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row justify-between items-end gap-4">
@@ -220,6 +256,7 @@ export default function StreaksPage() {
             value={ticker} onChange={e => setTicker(e.target.value.toUpperCase())}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase font-bold text-gray-700 w-32"
             placeholder="TICKER"
+            style={{ userSelect: 'text', WebkitUserSelect: 'text' } as React.CSSProperties}
           />
           <button disabled={loading} className="px-6 py-2 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition disabled:opacity-50">
             {loading ? 'Running...' : 'Run Analysis'}
@@ -330,6 +367,41 @@ export default function StreaksPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* --- EDUCATIONAL CONTENT SECTION --- */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mt-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">How This Strategy Works</h2>
+            
+            <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+              <p>
+                The Single Stock Streak Analyzer is built around a straightforward concept: markets sometimes exhibit short-term momentum or mean-reversion tendencies based on recent price action. Instead of relying on complex indicators or subjective chart reading, this tool systematically tests every possible combination of up and down day sequences—from a single day pattern all the way through extended 12-day streaks—to see which ones have historically preceded profitable moves.
+              </p>
+
+              <p>
+                When you run an analysis, the backtester scans through the entire price history and identifies each occurrence of every pattern. For example, if you're looking at a "+-+" pattern (up day, down day, up day), the system finds every instance where that exact sequence occurred. Once a pattern is matched, the strategy assumes you buy the stock at the next day's opening price. This matters because in real trading you can't act on today's close until tomorrow—so the open is a realistic entry point. You then hold for a set number of days (1, 2, 5, or 10), and the system records the return based on the closing price of your exit day.
+              </p>
+
+              <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Understanding the Results</h3>
+
+              <p>
+                Each row in the results table shows a specific pattern along with how many times it appeared in the historical data. The "Avg" columns display the average return across all trades for that holding period, and the "Win%" shows the percentage of trades that ended in profit. A pattern with a high average return but a low win rate might be driven by a few big winners, while a pattern with a modest average but a very high win rate tends to grind out consistent small gains. Both can be useful depending on your trading style and risk tolerance.
+              </p>
+
+              <p>
+                The "Unconditional Baseline" at the top is particularly important. It represents what you'd earn on average if you simply bought the stock at any random open and held for the given period—no pattern required. Comparing individual patterns against this baseline tells you whether the pattern actually provides an edge or if you'd be better off with a simpler buy-and-hold approach. Patterns that significantly outperform the baseline on both average return and win rate are the ones worth paying attention to.
+              </p>
+
+              <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realistic Expectations</h3>
+
+              <p>
+                Every result you see already has trading costs baked in. The backtester deducts a flat 0.10% round-trip commission from each trade, which covers the spread and broker fees you'd typically encounter with a retail account. This keeps the numbers grounded in reality—what looks like a winning strategy before costs can easily turn into a losing one after you account for the friction of actually executing trades. If the average return on a pattern barely exceeds zero, it's probably not worth trading in the real world once slippage and other execution issues come into play.
+              </p>
+
+              <p>
+                Keep in mind that past performance in a backtest doesn't guarantee future results. Markets change, patterns that worked in one regime may stop working in another, and there's always the risk of overfitting—where you find a pattern that worked purely by chance. Use this tool as a starting point for research, not as a black-box signal generator. The best approach is to combine these quantitative insights with your own understanding of the stock and broader market conditions.
+              </p>
             </div>
           </div>
         </>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import Script from 'next/script';
+import Head from 'next/head';
 import { createClient } from "@supabase/supabase-js";
 
 type SnapshotRow = {
@@ -29,41 +29,38 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ key: 'symbol', direction: 'asc' });
 
-  // --- NEW: CONTENT PROTECTION LOGIC ---
+  // --- Copy/Paste Protection ---
   useEffect(() => {
-    // 1. Prevent Right Click
-    const handleContextMenu = (e: MouseEvent) => {
-      e.preventDefault();
-    };
-
-    // 2. Prevent Copy/Cut/Paste shortcuts
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         (e.ctrlKey || e.metaKey) && 
-        (e.key === 'c' || e.key === 'v' || e.key === 'x' || e.key === 'a')
+        ['c', 'v', 'x', 'a', 'u', 's'].includes(e.key.toLowerCase())
       ) {
         e.preventDefault();
       }
+      if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+        e.preventDefault();
+      }
     };
-
-    // 3. Prevent actual Copy/Cut/Paste events (in case menu is used)
-    const preventDefault = (e: Event) => e.preventDefault();
+    const handleSelectStart = (e: Event) => e.preventDefault();
+    const handleDragStart = (e: Event) => e.preventDefault();
+    const handleCopy = (e: Event) => e.preventDefault();
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
-    document.addEventListener('copy', preventDefault);
-    document.addEventListener('cut', preventDefault);
-    document.addEventListener('paste', preventDefault);
+    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('dragstart', handleDragStart);
+    document.addEventListener('copy', handleCopy);
 
     return () => {
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
-      document.removeEventListener('copy', preventDefault);
-      document.removeEventListener('cut', preventDefault);
-      document.removeEventListener('paste', preventDefault);
+      document.removeEventListener('selectstart', handleSelectStart);
+      document.removeEventListener('dragstart', handleDragStart);
+      document.removeEventListener('copy', handleCopy);
     };
   }, []);
-  // -------------------------------------
 
   useEffect(() => {
     const fetchSnapshot = async () => {
@@ -136,56 +133,123 @@ export default function HomePage() {
   ];
 
   return (
-    // --- ADDED: select-none class to prevent text highlighting ---
-    <div className="bg-white min-h-screen select-none">
-      <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
+    <>
+      {/* SEO Meta Tags */}
+      <Head>
+        <title>Market Snapshot | Trend & Momentum Overview for All Stocks</title>
+        <meta 
+          name="description" 
+          content="Get a high-level overview of market trends and momentum. See which stocks are in bull or bear mode, how far they are from recent highs, and their short-term RSI readings." 
+        />
+        <meta name="keywords" content="market snapshot, stock trends, momentum indicators, RSI, 200-day moving average, 52-week high, market overview, stock screening" />
+        <meta name="robots" content="index, follow" />
+      </Head>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Market Snapshot</h1>
-        <p className="mt-2 text-gray-500">
-          A high-level overview of key trend and momentum metrics across the market.
-          {latestDate && ` Last data update: ${new Date(latestDate).toLocaleDateString()}`}
-        </p>
-        {loading && <div className="text-center py-20 text-indigo-600">Loading market data...</div>}
-        {error && <div className="mt-6 bg-red-50 text-red-700 p-4 rounded-md">Error: {error}</div>}
-        {!loading && !error && (
-          <div className="mt-8 overflow-auto border border-gray-200 rounded-lg shadow-sm" style={{ maxHeight: '80vh' }}>
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50 sticky top-0 z-10">
-                <tr>
-                  {headers.map(header => (
-                    <th key={header.key} onClick={() => requestSort(header.key)} className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" title={header.info}>
-                      <div className="flex items-center gap-2">
-                        {header.label}
-                        {sortConfig?.key === header.key && <span>{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {sortedData.map((row) => (
-                  <tr key={row.symbol} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">{row.symbol}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c200} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c100} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.p_vs_sma200} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_52w_high} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_26w_high} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_5d} /></td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_10d} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
-    </div>
+      <div 
+        className="bg-white min-h-screen"
+        style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
+      >
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Market Snapshot</h1>
+          <p className="mt-2 text-gray-500">
+            A high-level overview of key trend and momentum metrics across the market.
+            {latestDate && ` Last data update: ${new Date(latestDate).toLocaleDateString()}`}
+          </p>
+          
+          {loading && <div className="text-center py-20 text-indigo-600">Loading market data...</div>}
+          {error && <div className="mt-6 bg-red-50 text-red-700 p-4 rounded-md">Error: {error}</div>}
+          
+          {!loading && !error && (
+            <>
+              <div className="mt-8 overflow-auto border border-gray-200 rounded-lg shadow-sm" style={{ maxHeight: '80vh' }}>
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                      {headers.map(header => (
+                        <th key={header.key} onClick={() => requestSort(header.key)} className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100" title={header.info}>
+                          <div className="flex items-center gap-2">
+                            {header.label}
+                            {sortConfig?.key === header.key && <span>{sortConfig.direction === 'asc' ? '▲' : '▼'}</span>}
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {sortedData.map((row) => (
+                      <tr key={row.symbol} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-indigo-600">{row.symbol}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c200} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.c_vs_c100} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><BullBearLabel value={row.p_vs_sma200} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_52w_high} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><PctLabel value={row.pct_off_26w_high} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_5d} /></td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm"><RsiLabel value={row.avg_rsi_2_10d} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* --- EDUCATIONAL CONTENT SECTION --- */}
+              <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Understanding the Market Snapshot</h2>
+                
+                <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                  <p>
+                    This snapshot provides a quick way to assess the health of the market and individual stocks across several key dimensions. Rather than digging through charts one by one, you can scan the entire universe at a glance to see which stocks are in uptrends, which are struggling, which are near their highs, and which might be oversold. All columns are sortable—just click any header to reorder the table by that metric.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Trend Columns (Bull/Bear Labels)</h3>
+
+                  <p>
+                    The first three data columns classify each stock as either "BULL" or "BEAR" based on simple trend comparisons. <strong>vs 200D Ago</strong> compares today's closing price to where the stock closed 200 trading days ago (roughly 10 months). If the stock is higher now, it's labeled BULL; if lower, BEAR. This is a straightforward way to determine if the stock is in a long-term uptrend or downtrend.
+                  </p>
+
+                  <p>
+                    <strong>vs 100D Ago</strong> applies the same logic but with a shorter lookback—about 5 months. A stock that's BULL on the 200D comparison but BEAR on the 100D might be in a longer-term uptrend that's recently started to weaken. <strong>vs 200D SMA</strong> compares the current price to the 200-day simple moving average. This is a classic technical indicator: stocks above their 200-day moving average are generally considered to be in healthy uptrends.
+                  </p>
+
+                  <p>
+                    When all three columns show BULL, the stock is in a strong, confirmed uptrend. When all three show BEAR, the trend is clearly down. Mixed readings suggest a stock in transition—potentially an early reversal or a pullback within a larger trend. These labels give you a quick filter for trend-following strategies: you might only consider buying stocks where all three are green.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Distance-from-High Columns</h3>
+
+                  <p>
+                    <strong>% off 52W High</strong> shows how far below its 52-week (1 year) high the stock currently sits. A reading of -5% means the stock is only 5% below its yearly peak—close to breaking out or already at new highs. A reading of -30% means the stock has dropped 30% from its high—either a correction in an uptrend or part of a larger decline. The color coding helps you quickly spot the range: green for stocks near highs, yellow for moderate pullbacks, red for steep declines.
+                  </p>
+
+                  <p>
+                    <strong>% off 26W High</strong> is the same concept but over a 6-month window. Comparing the two columns tells you about the trajectory. A stock that's -5% off its 52-week high but -15% off its 26-week high recently peaked and has been declining. A stock that's -20% off its 52-week high but only -3% off its 26-week high has been recovering from an earlier low. These nuances help you identify stocks at different phases of their price cycles.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The RSI(2) Average Columns</h3>
+
+                  <p>
+                    RSI(2) is a short-term momentum oscillator that measures recent price movement on a scale from 0 to 100. Readings below 30 indicate short-term oversold conditions (the stock has dropped sharply and may bounce), while readings above 70 indicate overbought conditions (the stock has rallied hard and may pause or pull back). Because RSI(2) is so sensitive, it can whipsaw daily—so these columns show the average RSI(2) over the past 5 and 10 days to smooth the noise.
+                  </p>
+
+                  <p>
+                    A <strong>5D Avg RSI(2)</strong> below 30 means the stock has been consistently weak over the past week—potentially an opportunity for mean-reversion traders looking to buy oversold dips. A reading above 70 means sustained strength. The <strong>10D Avg RSI(2)</strong> extends this view to two weeks. When both 5D and 10D averages are extreme in the same direction, the stock has been persistently overbought or oversold, not just a one-day spike.
+                  </p>
+
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">How to Use This Snapshot</h3>
+
+                  <p>
+                    Think of this table as a screening tool to narrow your focus. If you're a trend follower, sort by the trend columns and look for stocks where all three show BULL. If you're a mean-reversion trader, sort by the RSI columns and look for deeply oversold stocks (low 5D/10D RSI) that are still in longer-term uptrends (BULL on the 200D comparisons). If you're hunting for breakout candidates, sort by % off 52W High and find stocks closest to 0%—they may be about to make new highs.
+                  </p>
+
+                  <p>
+                    This snapshot updates with the latest market data, so you're always seeing current readings. However, these are lagging indicators based on past prices—they describe what has happened, not what will happen. Use them to generate ideas and filter the universe, then do deeper research on the individual stocks that catch your attention. Combining this high-level view with chart analysis and fundamental context will give you a more complete picture before making any trading decisions.
+                  </p>
+                </div>
+              </section>
+            </>
+          )}
+        </main>
+      </div>
+    </>
   );
 }
