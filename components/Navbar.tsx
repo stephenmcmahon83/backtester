@@ -42,7 +42,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
             
-            {/* ✅ NEW FUNDAMENTALS DROPDOWN (Placed before separator) */}
+            {/* ✅ NEW IDEAS DROPDOWN */}
+            <div className="relative group z-50">
+              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
+                Ideas <span className="text-xs">▼</span>
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/gdp-analysis" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">GDP & Forward Returns</Link>
+              </div>
+            </div>
+
+            {/* FUNDAMENTALS DROPDOWN */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Fundamentals <span className="text-xs">▼</span>
@@ -87,7 +97,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 4: Streaks (NEW) */}
+            {/* Desktop Dropdown 4: Streaks */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Streaks <span className="text-xs">▼</span>
@@ -141,7 +151,23 @@ export default function Navbar() {
               Home
             </Link>
 
-            {/* ✅ NEW MOBILE FUNDAMENTALS */}
+            {/* ✅ NEW IDEAS MOBILE DROPDOWN */}
+            <div>
+              <button 
+                onClick={() => toggleDropdown('newIdeas')} 
+                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                New Ideas
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'newIdeas' ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {activeDropdown === 'newIdeas' && (
+                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
+                  <Link href="/gdp-analysis" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>GDP & Forward Returns</Link>
+                </div>
+              )}
+            </div>
+
+            {/* MOBILE FUNDAMENTALS */}
             <div>
               <button 
                 onClick={() => toggleDropdown('fundamentals')} 
@@ -157,7 +183,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 1 */}
+            {/* Mobile Dropdown 1: Single Stock */}
             <div>
               <button 
                 onClick={() => toggleDropdown('single')} 
@@ -174,7 +200,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 2 */}
+            {/* Mobile Dropdown 2: Portfolio */}
             <div>
               <button 
                 onClick={() => toggleDropdown('portfolio')} 
@@ -190,8 +216,8 @@ export default function Navbar() {
               )}
             </div>
 
-             {/* Mobile Dropdown 3 */}
-             <div>
+            {/* Mobile Dropdown 3: Seasonality */}
+            <div>
               <button 
                 onClick={() => toggleDropdown('seasonal')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
@@ -207,8 +233,8 @@ export default function Navbar() {
               )}
             </div>
 
-             {/* Mobile Dropdown 4: Streaks */}
-             <div>
+            {/* Mobile Dropdown 4: Streaks */}
+            <div>
               <button 
                 onClick={() => toggleDropdown('streaks')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
@@ -227,7 +253,7 @@ export default function Navbar() {
             <div className="border-t border-gray-200 my-2"></div>
             
             {/* Donate Mobile */}
-             <a 
+            <a 
               href="https://www.buymeacoffee.com/finbacktester.com" 
               target="_blank" 
               rel="noopener noreferrer"
