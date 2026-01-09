@@ -7,10 +7,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Toggle for the main mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Toggle for specific dropdowns on mobile
   const toggleDropdown = (name: string) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
@@ -42,13 +40,16 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
             
-            {/* ✅ NEW IDEAS DROPDOWN */}
+            {/* ✅ IDEAS DROPDOWN - Single item inside */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Ideas <span className="text-xs">▼</span>
               </button>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/gdp-analysis" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">GDP & Forward Returns</Link>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-72 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/economic-indicators" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <div className="font-medium">Economic Releases & SPY Reaction</div>
+                  <div className="text-xs text-gray-500 mt-0.5">GDP, CPI, Unemployment, Fed Funds & more</div>
+                </Link>
               </div>
             </div>
 
@@ -151,18 +152,21 @@ export default function Navbar() {
               Home
             </Link>
 
-            {/* ✅ NEW IDEAS MOBILE DROPDOWN */}
+            {/* ✅ IDEAS MOBILE DROPDOWN - Single item inside */}
             <div>
               <button 
-                onClick={() => toggleDropdown('newIdeas')} 
+                onClick={() => toggleDropdown('ideas')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               >
-                New Ideas
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'newIdeas' ? 'rotate-180' : ''}`}>▼</span>
+                Ideas
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'ideas' ? 'rotate-180' : ''}`}>▼</span>
               </button>
-              {activeDropdown === 'newIdeas' && (
+              {activeDropdown === 'ideas' && (
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/gdp-analysis" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>GDP & Forward Returns</Link>
+                  <Link href="/economic-indicators" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
+                    Economic Releases & SPY Reaction
+                    <span className="block text-xs text-gray-400">GDP, CPI, Unemployment & more</span>
+                  </Link>
                 </div>
               )}
             </div>
