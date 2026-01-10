@@ -138,7 +138,7 @@ export default function StreakSinglePage() {
             <header className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">Single Stock Streak Analyzer</h1>
                 <p className="text-gray-500">
-                    Results based on entering/exiting on the next day's open, and include 0.10% round-trip commission.
+                    Results based on entering/exiting on the next day&apos;s open, and include 0.10% round-trip commission.
                 </p>
             </header>
             
@@ -198,41 +198,40 @@ export default function StreakSinglePage() {
                     </section>
 
                     <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-    <h2 className="text-xl font-bold text-gray-900 mb-4">How the Streak Strategy Works</h2>
-    
-    <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
-        <p>
-            A streak is simply a run of consecutive up or down days. If a stock closes higher than the previous day, that's a +1 day. String three of those together and you've got a +3 streak. The same logic applies to down days—two consecutive lower closes would be a -2 streak. This tool scans the entire price history of the selected stock, identifies every streak that occurred, and then measures what happened next. The idea is to find out whether certain streak lengths tend to precede predictable moves, either as continuation (momentum) or reversal (mean reversion).
-        </p>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">How the Streak Strategy Works</h2>
+                        
+                        <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                            <p>
+                                A streak is simply a run of consecutive up or down days. If a stock closes higher than the previous day, that&apos;s a +1 day. String three of those together and you&apos;ve got a +3 streak. The same logic applies to down days—two consecutive lower closes would be a -2 streak. This tool scans the entire price history of the selected stock, identifies every streak that occurred, and then measures what happened next. The idea is to find out whether certain streak lengths tend to precede predictable moves, either as continuation (momentum) or reversal (mean reversion).
+                            </p>
 
-        <p>
-            When a streak ends, the backtester assumes you enter a long position at the following day's opening price. This is a realistic assumption because you can't act on today's closing data until tomorrow's session. The trade is then held for various forward periods—1, 2, 3, 5, and 10 trading days—and the return is calculated based on the opening price of the exit day. By testing multiple holding periods, you can see whether the edge (if any) shows up immediately or takes a few days to play out, which matters for how you'd actually structure a trade.
-        </p>
+                            <p>
+                                When a streak ends, the backtester assumes you enter a long position at the following day&apos;s opening price. This is a realistic assumption because you can&apos;t act on today&apos;s closing data until tomorrow&apos;s session. The trade is then held for various forward periods—1, 2, 3, 5, and 10 trading days—and the return is calculated based on the opening price of the exit day. By testing multiple holding periods, you can see whether the edge (if any) shows up immediately or takes a few days to play out, which matters for how you&apos;d actually structure a trade.
+                            </p>
 
-        <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Reading the Results Table</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Reading the Results Table</h3>
 
-        <p>
-            Each row represents a specific streak value. Positive numbers indicate winning streaks (consecutive up days), negative numbers indicate losing streaks (consecutive down days). The "Trades" column shows how many times that exact streak occurred in the historical data—this is your sample size, and it matters. A streak that only happened five times might show a great average return, but that's not statistically meaningful. You want to pay closer attention to streaks with dozens or hundreds of occurrences.
-        </p>
+                            <p>
+                                Each row represents a specific streak value. Positive numbers indicate winning streaks (consecutive up days), negative numbers indicate losing streaks (consecutive down days). The &quot;Trades&quot; column shows how many times that exact streak occurred in the historical data—this is your sample size, and it matters. A streak that only happened five times might show a great average return, but that&apos;s not statistically meaningful. You want to pay closer attention to streaks with dozens or hundreds of occurrences.
+                            </p>
 
-        <p>
-            The "Avg" columns show the average return across all trades for that streak and holding period. The "Win%" columns show what percentage of those trades ended in profit. These two metrics tell different stories. A high average return with a low win rate suggests a pattern driven by occasional large gains—potentially useful but psychologically difficult to trade. A more modest average with a high win rate points to something steadier and more consistent. Neither is inherently better; it depends on your goals and risk tolerance. You can click on any column header to sort the table by that metric—helpful if you want to quickly find the streaks with the highest win rates or the best average returns across a specific holding period.
-        </p>
+                            <p>
+                                The &quot;Avg&quot; columns show the average return across all trades for that streak and holding period. The &quot;Win%&quot; columns show what percentage of those trades ended in profit. These two metrics tell different stories. A high average return with a low win rate suggests a pattern driven by occasional large gains—potentially useful but psychologically difficult to trade. A more modest average with a high win rate points to something steadier and more consistent. Neither is inherently better; it depends on your goals and risk tolerance. You can click on any column header to sort the table by that metric—helpful if you want to quickly find the streaks with the highest win rates or the best average returns across a specific holding period.
+                            </p>
 
-        <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Current Streak and Practical Use</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Current Streak and Practical Use</h3>
 
-        <p>
-            The banner at the top displays the stock's current streak based on the most recent trading data. The corresponding row in the table gets highlighted so you can quickly see the historical performance for that exact scenario. If the stock is currently on a +4 streak, you can immediately check what has happened historically after previous +4 streaks. This gives you a data-driven starting point for thinking about the next trade, though it's never a guarantee—markets can and do behave differently than their past patterns.
-        </p>
+                            <p>
+                                The banner at the top displays the stock&apos;s current streak based on the most recent trading data. The corresponding row in the table gets highlighted so you can quickly see the historical performance for that exact scenario. If the stock is currently on a +4 streak, you can immediately check what has happened historically after previous +4 streaks. This gives you a data-driven starting point for thinking about the next trade, though it&apos;s never a guarantee—markets can and do behave differently than their past patterns.
+                            </p>
 
-        <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realism</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realism</h3>
 
-        <p>
-            Every return figure you see already includes a 0.10% round-trip commission deduction. This approximates the real-world cost of entering and exiting a position through a typical retail brokerage, including spreads. It's a small number on any single trade, but it adds up fast if you're trading frequently. Strategies that show barely positive returns before costs often turn negative once you account for execution friction, so the numbers here are designed to keep your expectations grounded. If something looks good after costs, it's worth investigating further—but always remember that backtested results represent the past, not a promise about the future.
-        </p>
-    </div>
-</section>
-                       
+                            <p>
+                                Every return figure you see already includes a 0.10% round-trip commission deduction. This approximates the real-world cost of entering and exiting a position through a typical retail brokerage, including spreads. It&apos;s a small number on any single trade, but it adds up fast if you&apos;re trading frequently. Strategies that show barely positive returns before costs often turn negative once you account for execution friction, so the numbers here are designed to keep your expectations grounded. If something looks good after costs, it&apos;s worth investigating further—but always remember that backtested results represent the past, not a promise about the future.
+                            </p>
+                        </div>
+                    </section>
                 </>
             )}
         </div>

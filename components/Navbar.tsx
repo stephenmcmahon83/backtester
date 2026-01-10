@@ -164,7 +164,7 @@ export default function Navbar() {
               {activeDropdown === 'ideas' && (
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
                   <Link href="/economic-indicators" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Economic Releases & SPY Reaction
+                    Data Releases & Market Reaction
                     <span className="block text-xs text-gray-400">GDP, CPI, Unemployment & more</span>
                   </Link>
                 </div>
