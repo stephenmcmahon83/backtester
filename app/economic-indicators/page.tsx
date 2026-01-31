@@ -498,404 +498,436 @@ export default function EconomicIndicatorsPage() {
 
   // ============ RENDER ============
   return (
-    <div 
-      id="protected-content"
-      className="min-h-screen bg-gray-50 p-4 md:p-8" 
-      style={{ 
-        userSelect: 'none', 
-        WebkitUserSelect: 'none', 
-        MozUserSelect: 'none', 
-        msUserSelect: 'none',
-        WebkitTouchCallout: 'none',
-      } as React.CSSProperties}
-    >
-      {/* Header */}
-      <div className="max-w-7xl mx-auto mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Economic Indicators & Market Analysis
-        </h1>
-        <p className="text-gray-500">
-          Analyze how 15 economic releases correlate with {selectedTicker} performance using verified FRED release dates
-        </p>
-      </div>
+    <>
+      {/* 
+        JSON-LD SCHEMA
+        Explicitly tells Google this is a Software Application
+        and lists the assets available for analysis.
+      */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Economic Calendar Backtester",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "description": "A quantitative tool to backtest historical returns of SPY, QQQ, Gold, and Bonds following major economic releases like CPI, NFP, and GDP.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Backtest SPY reaction to CPI",
+              "Analyze Gold price after Inflation data",
+              "Track Bond yields after NFP",
+              "Verify economic data with FRED releases"
+            ]
+          })
+        }}
+      />
 
-      {/* Error */}
-      {error && (
+      <div 
+        id="protected-content"
+        className="min-h-screen bg-gray-50 p-4 md:p-8" 
+        style={{ 
+          userSelect: 'none', 
+          WebkitUserSelect: 'none', 
+          MozUserSelect: 'none', 
+          msUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+        } as React.CSSProperties}
+      >
+        {/* Header */}
         <div className="max-w-7xl mx-auto mb-6">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-            <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
-            <p className="text-red-700 text-sm">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
-            >
-              Retry
-            </button>
-          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Economic Indicators & Market Analysis
+          </h1>
+          <p className="text-gray-500">
+            Analyze how 15 economic releases correlate with {selectedTicker} performance using verified FRED release dates
+          </p>
         </div>
-      )}
 
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Selectors */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Select Economic Indicator
-              </label>
-              <select
-                value={selectedIndicator}
-                onChange={(e) => setSelectedIndicator(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+        {/* Error */}
+        {error && (
+          <div className="max-w-7xl mx-auto mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+              <h3 className="text-red-800 font-semibold mb-2">Error Loading Data</h3>
+              <p className="text-red-700 text-sm">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium"
               >
-                {INDICATOR_CATEGORIES.map(category => (
-                  <optgroup key={category} label={category}>
-                    {Object.entries(INDICATOR_CONFIG)
-                      .filter(([, cfg]) => cfg.category === category)
-                      .map(([code, cfg]) => (
-                        <option key={code} value={code}>{cfg.name}</option>
-                      ))}
-                  </optgroup>
-                ))}
-              </select>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">
-                Select Asset to Analyze
-              </label>
-              <select
-                value={selectedTicker}
-                onChange={(e) => setSelectedTicker(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
-              >
-                {AVAILABLE_TICKERS.map((ticker) => (
-                  <option key={ticker.value} value={ticker.value}>
-                    {ticker.label} — {ticker.description}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Indicator Description */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex-1 min-w-[300px]">
-              <h3 className="font-bold text-indigo-900 mb-2">{config.name}</h3>
-              <p className="text-sm text-indigo-800 mb-3">{config.description}</p>
-              <p className="text-sm text-indigo-700">
-                <strong>Release:</strong> {config.releaseTime}
-              </p>
-              {config.comparisonNote && (
-                <p className="text-sm text-indigo-600 mt-2 italic">Note: {config.comparisonNote}</p>
-              )}
-            </div>
-            
-            {/* Entry Timing Badge */}
-            <div className={`px-4 py-3 rounded-lg border ${config.entryTiming === 'open' ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
-              <div className={`text-xs font-bold uppercase tracking-wide mb-1 ${config.entryTiming === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
-                Entry Price
-              </div>
-              <div className={`text-lg font-bold ${config.entryTiming === 'open' ? 'text-green-800' : 'text-amber-800'}`}>
-                {config.entryTiming === 'open' ? '📈 Market Open' : '📉 Market Close'}
-              </div>
-              <div className={`text-xs mt-1 ${config.entryTiming === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
-                {config.entryTiming === 'open' ? 'Pre-market release' : 'Intraday release'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Entry Timing Explanation */}
-        <div className="bg-slate-100 border border-slate-200 rounded-xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="text-slate-500 mt-0.5">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="text-sm text-slate-700">
-              <strong>Entry Timing:</strong> For indicators released <strong>before market open</strong> (e.g., 8:30 AM ET), 
-              we enter at that day&apos;s <span className="text-green-700 font-semibold">opening price</span>. 
-              For indicators released <strong>after market open</strong> (e.g., 10:00 AM ET), 
-              we enter at that day&apos;s <span className="text-amber-700 font-semibold">closing price</span> since 
-              you couldn&apos;t react at the open. All returns include 0.10% commission. Release dates are verified from FRED&apos;s official release calendar.
-            </div>
-          </div>
-        </div>
-
-        {/* Summary Cards */}
-        {loadingSummary ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm border p-8 animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
-                <div className="grid grid-cols-5 gap-4">
-                  {[1, 2, 3, 4, 5].map((j) => (
-                    <div key={j} className="text-center">
-                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                      <div className="h-8 bg-gray-200 rounded"></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : summary && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Above/Positive Card */}
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className={`${isCompareToZero ? 'bg-emerald-50 border-emerald-100' : 'bg-blue-50 border-blue-100'} px-6 py-4 border-b`}>
-                <h2 className={`text-lg font-bold ${isCompareToZero ? 'text-emerald-800' : 'text-blue-800'}`}>
-                  {selectedTicker} After {isCompareToZero ? 'Positive Reading' : 'Reading Above Prior'}
-                </h2>
-                <p className={`text-sm ${isCompareToZero ? 'text-emerald-600' : 'text-blue-600'}`}>
-                  {summary.above_prior_count} releases | {config.aboveMeaning}
-                </p>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-5 gap-3 text-center">
-                  {(['3d', '1w', '1m', '2m', '3m'] as const).map((period) => {
-                    const avgKey = `above_avg_return_${period}` as keyof SummaryStats;
-                    const winKey = `above_pct_positive_${period}` as keyof SummaryStats;
-                    const labels = { '3d': '+3 Days', '1w': '+1 Week', '1m': '+1 Month', '2m': '+2 Mo', '3m': '+3 Mo' };
-                    return (
-                      <div key={period}>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{labels[period]}</div>
-                        <div className={`text-lg font-bold ${getReturnColor(summary[avgKey] as number)}`}>
-                          {formatPct(summary[avgKey] as number)}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">{summary[winKey]}% win</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Below/Negative Card */}
-            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-              <div className={`${isCompareToZero ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'} px-6 py-4 border-b`}>
-                <h2 className={`text-lg font-bold ${isCompareToZero ? 'text-red-800' : 'text-orange-800'}`}>
-                  {selectedTicker} After {isCompareToZero ? 'Negative Reading' : 'Reading Below Prior'}
-                </h2>
-                <p className={`text-sm ${isCompareToZero ? 'text-red-600' : 'text-orange-600'}`}>
-                  {summary.below_prior_count} releases | {config.belowMeaning}
-                </p>
-              </div>
-              <div className="p-6">
-                <div className="grid grid-cols-5 gap-3 text-center">
-                  {(['3d', '1w', '1m', '2m', '3m'] as const).map((period) => {
-                    const avgKey = `below_avg_return_${period}` as keyof SummaryStats;
-                    const winKey = `below_pct_positive_${period}` as keyof SummaryStats;
-                    const labels = { '3d': '+3 Days', '1w': '+1 Week', '1m': '+1 Month', '2m': '+2 Mo', '3m': '+3 Mo' };
-                    return (
-                      <div key={period}>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{labels[period]}</div>
-                        <div className={`text-lg font-bold ${getReturnColor(summary[avgKey] as number)}`}>
-                          {formatPct(summary[avgKey] as number)}
-                        </div>
-                        <div className="text-xs text-gray-400 mt-1">{summary[winKey]}% win</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+                Retry
+              </button>
             </div>
           </div>
         )}
 
-        {/* Interpretation */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-          <h3 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-            How to Interpret
-          </h3>
-          <div className="text-sm text-amber-900 space-y-2">
-            <p>{config.interpretation}</p>
-            <p>
-              <strong>Methodology:</strong> {isCompareToZero
-                ? 'We classify each release as "Positive" (> 0) or "Negative" (≤ 0).'
-                : 'We compare each release to the prior reading.'
-              } Returns for <strong>{selectedTicker}</strong> are calculated from the {config.entryTiming === 'open' ? 'opening' : 'closing'} price on release date, with 0.10% commission deducted.
-            </p>
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Selectors */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Select Economic Indicator
+                </label>
+                <select
+                  value={selectedIndicator}
+                  onChange={(e) => setSelectedIndicator(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+                >
+                  {INDICATOR_CATEGORIES.map(category => (
+                    <optgroup key={category} label={category}>
+                      {Object.entries(INDICATOR_CONFIG)
+                        .filter(([, cfg]) => cfg.category === category)
+                        .map(([code, cfg]) => (
+                          <option key={code} value={code}>{cfg.name}</option>
+                        ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Select Asset to Analyze
+                </label>
+                <select
+                  value={selectedTicker}
+                  onChange={(e) => setSelectedTicker(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer"
+                >
+                  {AVAILABLE_TICKERS.map((ticker) => (
+                    <option key={ticker.value} value={ticker.value}>
+                      {ticker.label} — {ticker.description}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Data Table */}
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <div className="px-6 py-4 border-b bg-gray-50 flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">Historical Releases & {selectedTicker} Returns</h2>
-              <p className="text-gray-500 text-sm mt-1">
-                {summary ? `${summary.total_releases} total` : "Loading..."} 
-                {releases.length > 0 && ` • Showing ${releases.length}`} • 0.10% commission • Verified release dates
-              </p>
-            </div>
-            <div className={`px-3 py-1 rounded-full text-xs font-bold ${config.entryTiming === 'open' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
-              Entry: {config.entryTiming === 'open' ? 'Open Price' : 'Close Price'}
+          {/* Indicator Description */}
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="flex-1 min-w-[300px]">
+                <h3 className="font-bold text-indigo-900 mb-2">{config.name}</h3>
+                <p className="text-sm text-indigo-800 mb-3">{config.description}</p>
+                <p className="text-sm text-indigo-700">
+                  <strong>Release:</strong> {config.releaseTime}
+                </p>
+                {config.comparisonNote && (
+                  <p className="text-sm text-indigo-600 mt-2 italic">Note: {config.comparisonNote}</p>
+                )}
+              </div>
+              
+              {/* Entry Timing Badge */}
+              <div className={`px-4 py-3 rounded-lg border ${config.entryTiming === 'open' ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
+                <div className={`text-xs font-bold uppercase tracking-wide mb-1 ${config.entryTiming === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
+                  Entry Price
+                </div>
+                <div className={`text-lg font-bold ${config.entryTiming === 'open' ? 'text-green-800' : 'text-amber-800'}`}>
+                  {config.entryTiming === 'open' ? '📈 Market Open' : '📉 Market Close'}
+                </div>
+                <div className={`text-xs mt-1 ${config.entryTiming === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
+                  {config.entryTiming === 'open' ? 'Pre-market release' : 'Intraday release'}
+                </div>
+              </div>
             </div>
           </div>
 
-          {loadingTable ? (
-            <div className="p-12 text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-r-transparent mb-4"></div>
-              <p className="text-gray-600">Loading...</p>
+          {/* Entry Timing Explanation */}
+          <div className="bg-slate-100 border border-slate-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <div className="text-slate-500 mt-0.5">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="text-sm text-slate-700">
+                <strong>Entry Timing:</strong> For indicators released <strong>before market open</strong> (e.g., 8:30 AM ET), 
+                we enter at that day&apos;s <span className="text-green-700 font-semibold">opening price</span>. 
+                For indicators released <strong>after market open</strong> (e.g., 10:00 AM ET), 
+                we enter at that day&apos;s <span className="text-amber-700 font-semibold">closing price</span> since 
+                you couldn&apos;t react at the open. All returns include 0.10% commission. Release dates are verified from FRED&apos;s official release calendar.
+              </div>
             </div>
-          ) : (
-            <>
-              <div className="overflow-x-auto" style={{ maxHeight: "600px" }}>
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50 sticky top-0 z-10">
-                    <tr>
-                      <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Release Date</th>
-                      <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">
-                        {config.valueLabel || 'Value'}
-                      </th>
-                      {!isCompareToZero && (
-                        <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">Prior</th>
-                      )}
-                      <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">
-                        {isCompareToZero ? 'Type' : 'Direction'}
-                      </th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">Entry</th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+3D</th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+1W</th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+1M</th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+2M</th>
-                      <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+3M</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {releases.map((release) => (
-                      <tr key={release.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-3 text-sm font-medium text-gray-900">{release.release_date}</td>
-                        <td className="px-3 py-3 text-center text-sm font-mono text-gray-700">
-                          {isCompareToZero ? formatPct(release.current_value, 1) : formatValue(release.current_value)}
-                        </td>
-                        {!isCompareToZero && (
-                          <td className="px-3 py-3 text-center text-sm font-mono text-gray-500">
-                            {formatValue(release.previous_value)}
-                          </td>
-                        )}
-                        <td className="px-3 py-3 text-center">
-                          <span className={`inline-flex px-2 py-1 rounded-full text-xs font-bold ${getDirectionBadgeStyle(release.change_direction)}`}>
-                            {getDirectionLabel(release.change_direction)}
-                          </span>
-                        </td>
-                        <td className="px-3 py-3 text-right font-mono text-gray-700 text-sm">
-                          {formatPrice(release.entry_price)}
-                          <span className={`ml-1 text-xs ${release.entry_type === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
-                            ({release.entry_type === 'open' ? 'O' : 'C'})
-                          </span>
-                        </td>
-                        <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_3d)}`}>{formatPct(release.return_3d)}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_1w)}`}>{formatPct(release.return_1w)}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_1m)}`}>{formatPct(release.return_1m)}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_2m)}`}>{formatPct(release.return_2m)}</td>
-                        <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_3m)}`}>{formatPct(release.return_3m)}</td>
-                      </tr>
+          </div>
+
+          {/* Summary Cards */}
+          {loadingSummary ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {[1, 2].map((i) => (
+                <div key={i} className="bg-white rounded-xl shadow-sm border p-8 animate-pulse">
+                  <div className="h-6 bg-gray-200 rounded w-1/3 mb-4"></div>
+                  <div className="grid grid-cols-5 gap-4">
+                    {[1, 2, 3, 4, 5].map((j) => (
+                      <div key={j} className="text-center">
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-8 bg-gray-200 rounded"></div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : summary && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Above/Positive Card */}
+              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div className={`${isCompareToZero ? 'bg-emerald-50 border-emerald-100' : 'bg-blue-50 border-blue-100'} px-6 py-4 border-b`}>
+                  <h2 className={`text-lg font-bold ${isCompareToZero ? 'text-emerald-800' : 'text-blue-800'}`}>
+                    {selectedTicker} After {isCompareToZero ? 'Positive Reading' : 'Reading Above Prior'}
+                  </h2>
+                  <p className={`text-sm ${isCompareToZero ? 'text-emerald-600' : 'text-blue-600'}`}>
+                    {summary.above_prior_count} releases | {config.aboveMeaning}
+                  </p>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-5 gap-3 text-center">
+                    {(['3d', '1w', '1m', '2m', '3m'] as const).map((period) => {
+                      const avgKey = `above_avg_return_${period}` as keyof SummaryStats;
+                      const winKey = `above_pct_positive_${period}` as keyof SummaryStats;
+                      const labels = { '3d': '+3 Days', '1w': '+1 Week', '1m': '+1 Month', '2m': '+2 Mo', '3m': '+3 Mo' };
+                      return (
+                        <div key={period}>
+                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{labels[period]}</div>
+                          <div className={`text-lg font-bold ${getReturnColor(summary[avgKey] as number)}`}>
+                            {formatPct(summary[avgKey] as number)}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">{summary[winKey]}% win</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {hasMore && (
-                <div className="p-4 text-center border-t bg-gray-50 flex justify-center gap-3">
-                  <button onClick={loadMore} disabled={loadingMore} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 text-sm font-medium">
-                    {loadingMore ? "Loading..." : `Load More (${PAGE_SIZE})`}
-                  </button>
-                  <button onClick={loadAll} disabled={loadingMore} className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm font-medium">
-                    Load All
-                  </button>
+              {/* Below/Negative Card */}
+              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <div className={`${isCompareToZero ? 'bg-red-50 border-red-100' : 'bg-orange-50 border-orange-100'} px-6 py-4 border-b`}>
+                  <h2 className={`text-lg font-bold ${isCompareToZero ? 'text-red-800' : 'text-orange-800'}`}>
+                    {selectedTicker} After {isCompareToZero ? 'Negative Reading' : 'Reading Below Prior'}
+                  </h2>
+                  <p className={`text-sm ${isCompareToZero ? 'text-red-600' : 'text-orange-600'}`}>
+                    {summary.below_prior_count} releases | {config.belowMeaning}
+                  </p>
                 </div>
-              )}
-
-              {!hasMore && releases.length > 0 && (
-                <div className="p-4 text-center text-gray-500 text-sm border-t bg-gray-50">
-                  ✓ All {releases.length} records loaded
+                <div className="p-6">
+                  <div className="grid grid-cols-5 gap-3 text-center">
+                    {(['3d', '1w', '1m', '2m', '3m'] as const).map((period) => {
+                      const avgKey = `below_avg_return_${period}` as keyof SummaryStats;
+                      const winKey = `below_pct_positive_${period}` as keyof SummaryStats;
+                      const labels = { '3d': '+3 Days', '1w': '+1 Week', '1m': '+1 Month', '2m': '+2 Mo', '3m': '+3 Mo' };
+                      return (
+                        <div key={period}>
+                          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">{labels[period]}</div>
+                          <div className={`text-lg font-bold ${getReturnColor(summary[avgKey] as number)}`}>
+                            {formatPct(summary[avgKey] as number)}
+                          </div>
+                          <div className="text-xs text-gray-400 mt-1">{summary[winKey]}% win</div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              )}
-            </>
+              </div>
+            </div>
           )}
-        </div>
 
-        {/* Educational Content */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Understanding Economic Indicators & Market Returns</h2>
-          
-          <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
-            <p>
-              Economic indicators are statistics released by government agencies that provide insight into the economy&apos;s health and direction. This tool uses <strong>verified release dates</strong> from FRED&apos;s official release calendar—not estimated dates—to ensure accuracy.
-            </p>
-
-            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Assets We Track</h3>
-
-            <p>
-              <strong>SPY (S&amp;P 500)</strong> represents U.S. large-cap stocks. Stocks generally benefit from economic expansion—strong GDP, rising employment, and healthy consumer spending.
-            </p>
-
-            <p>
-              <strong>QQQ (Nasdaq 100)</strong> tracks large-cap tech and growth stocks. Tech is particularly sensitive to interest rate expectations since growth stocks derive more value from future earnings, which are discounted more heavily when rates rise.
-            </p>
-
-            <p>
-              <strong>GLD (Gold)</strong> is often a safe haven and inflation hedge. Gold rises when investors worry about inflation or uncertainty, but struggles when real interest rates increase (since gold pays no yield).
-            </p>
-
-            <p>
-              <strong>TLT (Long-Term Treasuries)</strong> holds 20+ year U.S. government bonds. Bond prices move inversely to rates—economic weakness (prompting Fed cuts) is bullish for TLT, while strong data is bearish.
-            </p>
-
-            <p>
-              <strong>XHB (Homebuilders)</strong> tracks homebuilder stocks. Sensitive to interest rates and economic conditions that affect housing demand.
-            </p>
-
-            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Entry Timing Matters</h3>
-
-            <p>
-              We use realistic entry timing based on when you could actually trade:
-            </p>
-
-            <ul className="list-disc pl-6 space-y-2">
-              <li>
-                <strong>Pre-market releases (before 9:30 AM ET):</strong> Most major data (NFP, CPI, GDP, PPI, retail sales) is released at 8:30 AM. You can analyze before the open, so we enter at the <span className="text-green-700 font-semibold">opening price</span>.
-              </li>
-              <li>
-                <strong>Intraday releases (after 9:30 AM ET):</strong> Data released at 10:00 AM (ISM, JOLTS, sentiment, LEI) means you missed the open reaction. We enter at the <span className="text-amber-700 font-semibold">closing price</span>.
-              </li>
-            </ul>
-
-            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Data Accuracy</h3>
-
-            <p>
-              All release dates in this tool come from FRED&apos;s official release calendar API, not from estimates or assumptions. We only include indicators where we can verify the exact historical release dates. This ensures the backtest results reflect what was actually possible to trade in real-time.
-            </p>
-
-            <p>
-              <strong>Note:</strong> Past performance does not guarantee future results. Economic relationships change over time. Use this tool to understand historical patterns, not as a standalone trading system.
-            </p>
+          {/* Interpretation */}
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+            <h3 className="font-bold text-amber-900 mb-3 flex items-center gap-2">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              How to Interpret
+            </h3>
+            <div className="text-sm text-amber-900 space-y-2">
+              <p>{config.interpretation}</p>
+              <p>
+                <strong>Methodology:</strong> {isCompareToZero
+                  ? 'We classify each release as "Positive" (> 0) or "Negative" (≤ 0).'
+                  : 'We compare each release to the prior reading.'
+                } Returns for <strong>{selectedTicker}</strong> are calculated from the {config.entryTiming === 'open' ? 'opening' : 'closing'} price on release date, with 0.10% commission deducted.
+              </p>
+            </div>
           </div>
-        </section>
 
-        {/* Data Sources */}
-        <div className="bg-gray-50 border rounded-xl p-6">
-          <h3 className="font-bold text-gray-800 mb-3">Data Sources & Methodology</h3>
-          <ul className="text-sm text-gray-600 space-y-2">
-            <li><strong>Economic Data:</strong> FRED (Federal Reserve Economic Data) with verified release dates only</li>
-            <li><strong>Price Data:</strong> Yahoo Finance (SPY, QQQ, GLD, TLT, XHB)</li>
-            <li><strong>Entry Timing:</strong> Open price for pre-market releases, Close price for intraday releases</li>
-            <li><strong>Commission:</strong> 0.10% deducted from all returns</li>
-            <li><strong>Holding Periods:</strong> +3 Days, +1 Week, +1 Month, +2 Months, +3 Months</li>
-            <li><strong>Indicators:</strong> 15 economic indicators with verified FRED release dates</li>
-            <li><strong>Disclaimer:</strong> Past performance ≠ future results. Educational purposes only.</li>
-          </ul>
+          {/* Data Table */}
+          <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+            <div className="px-6 py-4 border-b bg-gray-50 flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">Historical Releases & {selectedTicker} Returns</h2>
+                <p className="text-gray-500 text-sm mt-1">
+                  {summary ? `${summary.total_releases} total` : "Loading..."} 
+                  {releases.length > 0 && ` • Showing ${releases.length}`} • 0.10% commission • Verified release dates
+                </p>
+              </div>
+              <div className={`px-3 py-1 rounded-full text-xs font-bold ${config.entryTiming === 'open' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}>
+                Entry: {config.entryTiming === 'open' ? 'Open Price' : 'Close Price'}
+              </div>
+            </div>
+
+            {loadingTable ? (
+              <div className="p-12 text-center">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-r-transparent mb-4"></div>
+                <p className="text-gray-600">Loading...</p>
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto" style={{ maxHeight: "600px" }}>
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50 sticky top-0 z-10">
+                      <tr>
+                        <th className="px-3 py-3 text-left text-xs font-bold text-gray-600 uppercase">Release Date</th>
+                        <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">
+                          {config.valueLabel || 'Value'}
+                        </th>
+                        {!isCompareToZero && (
+                          <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">Prior</th>
+                        )}
+                        <th className="px-3 py-3 text-center text-xs font-bold text-gray-600 uppercase">
+                          {isCompareToZero ? 'Type' : 'Direction'}
+                        </th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">Entry</th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+3D</th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+1W</th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+1M</th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+2M</th>
+                        <th className="px-3 py-3 text-right text-xs font-bold text-gray-600 uppercase">+3M</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {releases.map((release) => (
+                        <tr key={release.id} className="hover:bg-gray-50">
+                          <td className="px-3 py-3 text-sm font-medium text-gray-900">{release.release_date}</td>
+                          <td className="px-3 py-3 text-center text-sm font-mono text-gray-700">
+                            {isCompareToZero ? formatPct(release.current_value, 1) : formatValue(release.current_value)}
+                          </td>
+                          {!isCompareToZero && (
+                            <td className="px-3 py-3 text-center text-sm font-mono text-gray-500">
+                              {formatValue(release.previous_value)}
+                            </td>
+                          )}
+                          <td className="px-3 py-3 text-center">
+                            <span className={`inline-flex px-2 py-1 rounded-full text-xs font-bold ${getDirectionBadgeStyle(release.change_direction)}`}>
+                              {getDirectionLabel(release.change_direction)}
+                            </span>
+                          </td>
+                          <td className="px-3 py-3 text-right font-mono text-gray-700 text-sm">
+                            {formatPrice(release.entry_price)}
+                            <span className={`ml-1 text-xs ${release.entry_type === 'open' ? 'text-green-600' : 'text-amber-600'}`}>
+                              ({release.entry_type === 'open' ? 'O' : 'C'})
+                            </span>
+                          </td>
+                          <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_3d)}`}>{formatPct(release.return_3d)}</td>
+                          <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_1w)}`}>{formatPct(release.return_1w)}</td>
+                          <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_1m)}`}>{formatPct(release.return_1m)}</td>
+                          <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_2m)}`}>{formatPct(release.return_2m)}</td>
+                          <td className={`px-3 py-3 text-right font-mono text-sm font-semibold ${getReturnColor(release.return_3m)}`}>{formatPct(release.return_3m)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {hasMore && (
+                  <div className="p-4 text-center border-t bg-gray-50 flex justify-center gap-3">
+                    <button onClick={loadMore} disabled={loadingMore} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 text-sm font-medium">
+                      {loadingMore ? "Loading..." : `Load More (${PAGE_SIZE})`}
+                    </button>
+                    <button onClick={loadAll} disabled={loadingMore} className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:bg-gray-400 text-sm font-medium">
+                      Load All
+                    </button>
+                  </div>
+                )}
+
+                {!hasMore && releases.length > 0 && (
+                  <div className="p-4 text-center text-gray-500 text-sm border-t bg-gray-50">
+                    ✓ All {releases.length} records loaded
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Educational Content (OPTIMIZED FOR NEWS TRADING KEYWORDS) */}
+          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">How to Trade the Economic Calendar</h2>
+            
+            <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+              <p>
+                Economic indicators are statistics released by government agencies that provide insight into the economy&apos;s health and direction. This tool uses <strong>verified release dates</strong> from FRED&apos;s official release calendar—not estimated dates—to ensure accuracy.
+              </p>
+
+              <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Assets to Trade on Economic News (SPY, QQQ, Gold)</h3>
+
+              <p>
+                <strong>SPY (S&amp;P 500)</strong> represents U.S. large-cap stocks. Stocks generally benefit from economic expansion—strong GDP, rising employment, and healthy consumer spending.
+              </p>
+
+              <p>
+                <strong>QQQ (Nasdaq 100)</strong> tracks large-cap tech and growth stocks. Tech is particularly sensitive to interest rate expectations since growth stocks derive more value from future earnings, which are discounted more heavily when rates rise.
+              </p>
+
+              <p>
+                <strong>GLD (Gold)</strong> is often a safe haven and inflation hedge. Gold rises when investors worry about inflation or uncertainty, but struggles when real interest rates increase (since gold pays no yield).
+              </p>
+
+              <p>
+                <strong>TLT (Long-Term Treasuries)</strong> holds 20+ year U.S. government bonds. Bond prices move inversely to rates—economic weakness (prompting Fed cuts) is bullish for TLT, while strong data is bearish.
+              </p>
+
+              <p>
+                <strong>XHB (Homebuilders)</strong> tracks homebuilder stocks. Sensitive to interest rates and economic conditions that affect housing demand.
+              </p>
+
+              <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Pre-Market vs Intraday Trading Rules</h3>
+
+              <p>
+                We use realistic entry timing based on when you could actually trade:
+              </p>
+
+              <ul className="list-disc pl-6 space-y-2">
+                <li>
+                  <strong>Pre-market releases (before 9:30 AM ET):</strong> Most major data (NFP, CPI, GDP, PPI, retail sales) is released at 8:30 AM. You can analyze before the open, so we enter at the <span className="text-green-700 font-semibold">opening price</span>.
+                </li>
+                <li>
+                  <strong>Intraday releases (after 9:30 AM ET):</strong> Data released at 10:00 AM (ISM, JOLTS, sentiment, LEI) means you missed the open reaction. We enter at the <span className="text-amber-700 font-semibold">closing price</span>.
+                </li>
+              </ul>
+
+              <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Data Accuracy</h3>
+
+              <p>
+                All release dates in this tool come from FRED&apos;s official release calendar API, not from estimates or assumptions. We only include indicators where we can verify the exact historical release dates. This ensures the backtest results reflect what was actually possible to trade in real-time.
+              </p>
+
+              <p>
+                <strong>Note:</strong> Past performance does not guarantee future results. Economic relationships change over time. Use this tool to understand historical patterns, not as a standalone trading system.
+              </p>
+            </div>
+          </section>
+
+          {/* Data Sources */}
+          <div className="bg-gray-50 border rounded-xl p-6">
+            <h3 className="font-bold text-gray-800 mb-3">Data Sources & Methodology</h3>
+            <ul className="text-sm text-gray-600 space-y-2">
+              <li><strong>Economic Data:</strong> FRED (Federal Reserve Economic Data) with verified release dates only</li>
+              <li><strong>Price Data:</strong> Yahoo Finance (SPY, QQQ, GLD, TLT, XHB)</li>
+              <li><strong>Entry Timing:</strong> Open price for pre-market releases, Close price for intraday releases</li>
+              <li><strong>Commission:</strong> 0.10% deducted from all returns</li>
+              <li><strong>Holding Periods:</strong> +3 Days, +1 Week, +1 Month, +2 Months, +3 Months</li>
+              <li><strong>Indicators:</strong> 15 economic indicators with verified FRED release dates</li>
+              <li><strong>Disclaimer:</strong> Past performance ≠ future results. Educational purposes only.</li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -134,15 +134,45 @@ export default function HomePage() {
 
   return (
     <>
-      {/* SEO Meta Tags */}
+      {/* SEO Meta Tags - UPDATED FOR TRAFFIC */}
       <Head>
-        <title>Market Snapshot | Trend & Momentum Overview for All Stocks</title>
+        <title>Stock Trend Scanner: RSI & Moving Average Screener | FinBacktester</title>
+        
+        {/* Canonical Tag - Fixes the duplicate search result issue */}
+        <link rel="canonical" href="https://www.finbacktester.com" />
+
         <meta 
           name="description" 
-          content="Get a high-level overview of market trends and momentum. See which stocks are in bull or bear mode, how far they are from recent highs, and their short-term RSI readings." 
+          content="Free stock market scanner. Identify trends with 200-day moving averages, RSI(2) overbought/oversold readings, and 52-week high momentum strategies." 
         />
-        <meta name="keywords" content="market snapshot, stock trends, momentum indicators, RSI, 200-day moving average, 52-week high, market overview, stock screening" />
+        <meta name="keywords" content="market snapshot, stock trends, momentum indicators, RSI screener, 200-day moving average scanner, 52-week high strategy, stock screening tool" />
         <meta name="robots" content="index, follow" />
+
+        {/* Open Graph Tags for Social Sharing */}
+        <meta property="og:title" content="Stock Trend Scanner: RSI & Moving Average Screener" />
+        <meta property="og:description" content="Identify Bull/Bear trends and overbought stocks instantly." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.finbacktester.com" />
+
+        {/* JSON-LD Structured Data - Tells Google this is a Software Application */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "FinBacktester Market Snapshot",
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web",
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              },
+              "description": "A quantitative finance tool for scanning stock market trends, RSI momentum, and mean reversion setups."
+            })
+          }}
+        />
       </Head>
 
       <div 
@@ -192,7 +222,7 @@ export default function HomePage() {
                 </table>
               </div>
 
-              {/* --- EDUCATIONAL CONTENT SECTION --- */}
+              {/* --- EDUCATIONAL CONTENT SECTION (Optimized for Search Keywords) --- */}
               <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Understanding the Market Snapshot</h2>
                 
@@ -201,7 +231,7 @@ export default function HomePage() {
                     This snapshot provides a quick way to assess the health of the market and individual stocks across several key dimensions. Rather than digging through charts one by one, you can scan the entire universe at a glance to see which stocks are in uptrends, which are struggling, which are near their highs, and which might be oversold. All columns are sortable—just click any header to reorder the table by that metric.
                   </p>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Trend Columns (Bull/Bear Labels)</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">How to use a 200-day Moving Average Scanner</h3>
 
                   <p>
                     The first three data columns classify each stock as either "BULL" or "BEAR" based on simple trend comparisons. <strong>vs 200D Ago</strong> compares today's closing price to where the stock closed 200 trading days ago (roughly 10 months). If the stock is higher now, it's labeled BULL; if lower, BEAR. This is a straightforward way to determine if the stock is in a long-term uptrend or downtrend.
@@ -215,7 +245,7 @@ export default function HomePage() {
                     When all three columns show BULL, the stock is in a strong, confirmed uptrend. When all three show BEAR, the trend is clearly down. Mixed readings suggest a stock in transition—potentially an early reversal or a pullback within a larger trend. These labels give you a quick filter for trend-following strategies: you might only consider buying stocks where all three are green.
                   </p>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Distance-from-High Columns</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Scanning for Breakouts (52-Week Highs)</h3>
 
                   <p>
                     <strong>% off 52W High</strong> shows how far below its 52-week (1 year) high the stock currently sits. A reading of -5% means the stock is only 5% below its yearly peak—close to breaking out or already at new highs. A reading of -30% means the stock has dropped 30% from its high—either a correction in an uptrend or part of a larger decline. The color coding helps you quickly spot the range: green for stocks near highs, yellow for moderate pullbacks, red for steep declines.
@@ -225,7 +255,7 @@ export default function HomePage() {
                     <strong>% off 26W High</strong> is the same concept but over a 6-month window. Comparing the two columns tells you about the trajectory. A stock that's -5% off its 52-week high but -15% off its 26-week high recently peaked and has been declining. A stock that's -20% off its 52-week high but only -3% off its 26-week high has been recovering from an earlier low. These nuances help you identify stocks at different phases of their price cycles.
                   </p>
 
-                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The RSI(2) Average Columns</h3>
+                  <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">RSI 2 Trading Strategy Screener</h3>
 
                   <p>
                     RSI(2) is a short-term momentum oscillator that measures recent price movement on a scale from 0 to 100. Readings below 30 indicate short-term oversold conditions (the stock has dropped sharply and may bounce), while readings above 70 indicate overbought conditions (the stock has rallied hard and may pause or pull back). Because RSI(2) is so sensitive, it can whipsaw daily—so these columns show the average RSI(2) over the past 5 and 10 days to smooth the noise.

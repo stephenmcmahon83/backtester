@@ -1,50 +1,38 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Stock Valuation Tool | 15x Earnings Fair Value Calculator',
-  description: 'Analyze stock valuations using the 15x earnings model. View historical EPS, revenue, margins, ROE, ROIC, debt ratios, and compare current price to fair value estimates. Free fundamental analysis tool.',
+  // 1. "Intrinsic Value" and "Fair Value" are the money keywords here
+  title: 'Intrinsic Value Calculator | 15x Earnings Stock Valuation Tool',
+  
+  // 2. Frame it as a question: "Is the stock overvalued?"
+  description: 'Is the stock overvalued? Use our free Fair Value Calculator based on the 15x Earnings model (Peter Lynch Rule). Calculate intrinsic value for AAPL, NVDA, TSLA, and more.',
+  
   keywords: [
-    'stock valuation',
-    'stock valuation tool',
-    'fair value calculator',
-    'fair value estimator',
-    '15x earnings',
+    'intrinsic value calculator', // #1 Keyword
+    'fair value stock calculator',
     '15x earnings model',
-    'EPS analysis',
-    'earnings per share',
-    'fundamental analysis',
-    'stock analyzer',
-    'intrinsic value',
-    'intrinsic value calculator',
-    'ROE analysis',
-    'ROIC analysis',
-    'return on equity',
-    'return on invested capital',
-    'PE ratio',
-    'price to earnings',
-    'stock research tool',
-    'financial ratios',
-    'debt to equity',
-    'profit margin analysis',
-    'book value',
-    'stock screener',
-    'value investing',
-    'Graham number',
+    'peter lynch valuation',
+    'stock overvalued or undervalued',
+    'PE ratio calculator',
+    'graham number alternative',
+    'stock valuation software',
+    'fundamental analysis tool',
+    'historical PE ratio chart'
   ],
   alternates: {
     canonical: 'https://finbacktester.com/valuation',
   },
   openGraph: {
-    title: 'Stock Valuation Tool | 15x Earnings Fair Value Calculator | FinBacktester',
-    description: 'Analyze any stock with the 15x earnings fair value model. View 10+ years of EPS, revenue, margins, ROE, ROIC, and see if the current price is above or below fair value.',
+    title: 'Free Intrinsic Value Calculator | FinBacktester',
+    description: 'Enter a ticker to see if a stock is trading above or below its Fair Value based on historical earnings.',
     url: 'https://finbacktester.com/valuation',
     siteName: 'FinBacktester',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Stock Valuation Tool | FinBacktester',
-    description: 'Free fundamental analysis tool. Compare stock prices to 15x earnings fair value with historical financial data.',
+    title: 'Stock Fair Value Calculator',
+    description: 'Instantly calculate if a stock is overvalued using the 15x Earnings model.',
   },
 };
 

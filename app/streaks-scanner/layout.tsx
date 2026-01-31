@@ -1,44 +1,42 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Streak Scanner - Stocks on Winning & Losing Streaks Today',
-  description: 'Find stocks currently on extended winning or losing streaks. Updated daily. See which stocks have been up or down 3, 4, 5+ consecutive days with historical win rates and average returns. Identify mean reversion or momentum opportunities.',
+  // 1. "Mean Reversion" and "Winning Streak" are high-intent keywords
+  title: 'Stock Winning/Losing Streak Backtester | Mean Reversion Tool',
+  
+  // 2. Ask the specific questions traders type into Google
+  description: 'What happens after AAPL drops 3 days in a row? Do stocks bounce after 5 down days? Backtest winning and losing streak probabilities for any US stock.',
+  
   keywords: [
-    'stocks on winning streak',
-    'stocks on winning streak today',
-    'stocks down multiple days',
-    'stocks up multiple days',
-    'stock streak scanner',
-    'consecutive day streak scanner',
-    'stocks up 5 days in a row',
-    'stocks down 5 days in a row',
-    'oversold stocks today',
-    'overbought stocks today',
-    'extended stocks',
-    'mean reversion scanner',
-    'momentum stocks today',
-    'stocks on a run',
-    'market scanner',
-    'streak trading',
+    'winning streak scanner', // Primary
+    'losing streak buy the dip',
+    'stock mean reversion stats',
+    '3 day drop rule',
+    'consecutive up days probability',
+    'overbought oversold scanner',
+    'shorting parabolic stocks',
+    'momentum trading simulator',
+    'buy the dip backtest',
+    'knife catching strategy'
   ],
   alternates: {
-    canonical: 'https://finbacktester.com/streaks-scanner',
+    canonical: 'https://finbacktester.com/streaks-single',
   },
   openGraph: {
-    title: 'Streak Scanner - Stocks on Streaks Today | FinBacktester',
-    description: 'Which stocks are on extended winning or losing streaks right now? Updated daily. Find mean reversion and momentum opportunities with historical data.',
-    url: 'https://finbacktester.com/streaks-scanner',
+    title: 'Stock Streak Backtester | Winning & Losing Streaks',
+    description: 'See the historical win rate of buying a stock after 3, 5, or 10 consecutive down days. Free Mean Reversion Tool.',
+    url: 'https://finbacktester.com/streaks-single',
     siteName: 'FinBacktester',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Streak Scanner - Stocks on Streaks Today | FinBacktester',
-    description: 'Find stocks on winning or losing streaks. See historical performance data for each streak pattern.',
+    title: 'Stock Streak Backtester',
+    description: 'Backtest mean reversion strategies on winning and losing streaks.',
   },
 };
 
-export default function StreaksScannerLayout({
+export default function StreaksSingleLayout({
   children,
 }: {
   children: React.ReactNode;

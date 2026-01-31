@@ -1,39 +1,38 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Seasonality Dashboard - Best Stocks to Buy This Month Based on History',
-  description: 'See which stocks have the best historical performance for the current trading day. Stocks ranked by win rate and average returns based on 20+ years of data. Compare trailing momentum with forward seasonal patterns across the entire market.',
+  // 1. "Best Stocks to Buy Today" is a high-volume keyword
+  title: 'Best Stocks to Buy Today | Historical Seasonality Scanner',
+  
+  // 2. Focus on "Win Rate" and "Probability" to sound professional
+  description: 'Quantitative scanner ranking stocks by historical win rate for the current trading day. See average returns and probability of success based on 20+ years of data.',
+  
   keywords: [
-    'best stocks this month',
-    'best stocks today',
+    'best stocks to buy today', // High volume
     'stock seasonality scanner',
-    'market seasonality snapshot',
-    'seasonal stock picks',
-    'stocks with best win rate',
-    'trading day patterns',
-    'seasonal returns',
-    'market timing',
-    'stock calendar effects',
-    'best performing stocks today',
-    'seasonal trading opportunities',
-    'stock market calendar',
-    'daily stock patterns',
-    'market-wide seasonality',
+    'historical stock returns',
+    'probability of profit scanner',
+    'seasonal trading strategy',
+    'market timing tool',
+    'quantitative stock picker',
+    'daily stock market patterns',
+    'swing trading ideas',
+    'momentum vs seasonality'
   ],
   alternates: {
     canonical: 'https://finbacktester.com/seasonal-dashboard',
   },
   openGraph: {
-    title: 'Seasonality Dashboard - Best Stocks Today | FinBacktester',
-    description: 'Which stocks perform best on this trading day historically? See rankings based on 20+ years of data with win rates and average returns.',
+    title: 'Best Stocks to Buy Today | Seasonality Scanner',
+    description: 'Don\'t guess. See which stocks historically perform best on this specific trading day based on 20 years of data.',
     url: 'https://finbacktester.com/seasonal-dashboard',
     siteName: 'FinBacktester',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Seasonality Dashboard | FinBacktester',
-    description: 'Find the best seasonal stock opportunities for today. Compare historical performance across the entire market.',
+    title: 'Daily Stock Seasonality Scanner',
+    description: 'Find the highest probability trades for today based on historical win rates.',
   },
 };
 

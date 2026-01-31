@@ -124,107 +124,137 @@ export default function SnapshotPage() {
     const targetDay = snapshotData.length > 0 ? snapshotData[0].target_day : '...';
 
     return (
-        <div 
-            id="protected-content"
-            className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
-            style={{ 
-                userSelect: 'none', 
-                WebkitUserSelect: 'none', 
-                MozUserSelect: 'none', 
-                msUserSelect: 'none',
-                WebkitTouchCallout: 'none',
-            } as React.CSSProperties}
-        >
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Seasonality Snapshot</h1>
-                <p className="text-gray-500">
-                    Showing forward return probabilities for the upcoming trading day: <strong>#{targetDay}</strong>
-                </p>
-            </header>
-            
-            {loading && <div className="text-center p-10 text-blue-600">Loading market analysis...</div>}
-            {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
+        <>
+            {/* 
+              JSON-LD SCHEMA
+              Tells Google this is a "Scanner Tool" and lists the metrics available.
+            */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": "Daily Stock Seasonality Scanner",
+                        "applicationCategory": "FinanceApplication",
+                        "operatingSystem": "Web",
+                        "description": "A quantitative scanner that ranks stocks by their historical performance on the current trading day.",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        },
+                        "featureList": [
+                            "Daily Historical Win Rate",
+                            "Forward Return Projections",
+                            "Momentum vs Seasonality Analysis"
+                        ]
+                    })
+                }}
+            />
 
-            {!loading && !error && snapshotData.length > 0 && (
-                <div className="space-y-16">
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Average Return Heatmap (%)</h2>
-                            <p className="text-sm text-gray-500 mt-1">Trailing returns (most recent 10, 5, 1 day trailing returns) and average historical forward returns for holding N days. Assumes 0.10% roundtrip commissions.</p>
-                        </div>
-                        <SnapshotTable
-                            data={snapshotData}
-                            columns={avgReturnColumns}
-                            colorScaleType="return"
-                        />
-                    </section>
+            <div 
+                id="protected-content"
+                className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
+                style={{ 
+                    userSelect: 'none', 
+                    WebkitUserSelect: 'none', 
+                    MozUserSelect: 'none', 
+                    msUserSelect: 'none',
+                    WebkitTouchCallout: 'none',
+                } as React.CSSProperties}
+            >
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Daily Market Seasonality Scanner</h1>
+                    <p className="text-gray-500">
+                        Historical return probabilities for the upcoming trading day: <strong>#{targetDay}</strong>
+                    </p>
+                </header>
+                
+                {loading && <div className="text-center p-10 text-blue-600">Loading market analysis...</div>}
+                {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
 
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Profitability Win Rate (%)</h2>
-                            <p className="text-sm text-gray-500 mt-1">Percentage of historical trades that were profitable.</p>
-                        </div>
-                        <SnapshotTable
-                            data={snapshotData}
-                            columns={pctProfitableColumns}
-                            colorScaleType="profitable"
-                        />
-                    </section>
+                {!loading && !error && snapshotData.length > 0 && (
+                    <div className="space-y-16">
+                        <section>
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-bold text-gray-800">Average Return Heatmap (%)</h2>
+                                <p className="text-sm text-gray-500 mt-1">Trailing returns (most recent 10, 5, 1 day trailing returns) and average historical forward returns for holding N days. Assumes 0.10% roundtrip commissions.</p>
+                            </div>
+                            <SnapshotTable
+                                data={snapshotData}
+                                columns={avgReturnColumns}
+                                colorScaleType="return"
+                            />
+                        </section>
 
-                    {/* --- EDUCATIONAL CONTENT SECTION --- */}
-                    <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">Understanding the Market Snapshot</h2>
-                        
-                        <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
-                            <p>
-                                This snapshot provides a market-wide view of seasonal patterns for a single trading day. While the single-ticker seasonality tool shows you all 252 trading days for one stock, this page flips the perspective—showing you all stocks for one specific trading day. It answers the question: &quot;Based on historical patterns, which stocks tend to perform best (or worst) starting from tomorrow?&quot;
-                            </p>
+                        <section>
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-bold text-gray-800">Profitability Win Rate (%)</h2>
+                                <p className="text-sm text-gray-500 mt-1">Percentage of historical trades that were profitable.</p>
+                            </div>
+                            <SnapshotTable
+                                data={snapshotData}
+                                columns={pctProfitableColumns}
+                                colorScaleType="profitable"
+                            />
+                        </section>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Trailing vs. Forward Returns</h3>
+                        {/* --- EDUCATIONAL CONTENT SECTION (SEO OPTIMIZED) --- */}
+                        <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Stock Seasonality Trading Strategy</h2>
+                            
+                            <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                                <p>
+                                    This snapshot provides a market-wide view of seasonal patterns for a single trading day. While the single-ticker seasonality tool shows you all 252 trading days for one stock, this page flips the perspective—showing you all stocks for one specific trading day. It answers the question: &quot;Based on historical patterns, which stocks tend to perform best (or worst) starting from tomorrow?&quot;
+                                </p>
 
-                            <p>
-                                The first table includes both trailing and forward return columns. The <strong>trailing columns (-10D, -5D, -1D)</strong> show how each stock has actually performed over the past 10, 5, and 1 trading days leading into this point. This gives you context about recent momentum—whether the stock is coming into this seasonal window hot, cold, or flat. These are actual recent returns, not historical averages.
-                            </p>
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Trailing Momentum vs Seasonal Patterns</h3>
 
-                            <p>
-                                The <strong>forward columns (+1D through +20D)</strong> show the historical average return if you had bought at the open of this trading day and held for the specified number of days. These are averages across all the years in the sample, not predictions. A +5D return of 0.8% means that historically, buying on this trading day and holding for 5 days produced an average gain of 0.8% after commissions.
-                            </p>
+                                <p>
+                                    The first table includes both trailing and forward return columns. The <strong>trailing columns (-10D, -5D, -1D)</strong> show how each stock has actually performed over the past 10, 5, and 1 trading days leading into this point. This gives you context about recent momentum—whether the stock is coming into this seasonal window hot, cold, or flat. These are actual recent returns, not historical averages.
+                                </p>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Reading the Heatmap Colors</h3>
+                                <p>
+                                    The <strong>forward columns (+1D through +20D)</strong> show the historical average return if you had bought at the open of this trading day and held for the specified number of days. These are averages across all the years in the sample, not predictions. A +5D return of 0.8% means that historically, buying on this trading day and holding for 5 days produced an average gain of 0.8% after commissions.
+                                </p>
 
-                            <p>
-                                Both tables use color coding to help you quickly spot patterns. In the Average Return table, green cells indicate positive historical returns and red cells indicate negative. The deeper the color, the stronger the pattern. In the Win Rate table, the coloring reflects profitability percentage—darker greens indicate higher win rates (more consistent historical profitability), while lighter colors or reds indicate lower win rates.
-                            </p>
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">How to Find High Probability Setups</h3>
 
-                            <p>
-                                The most actionable setups typically show both strong average returns and high win rates. A stock with a 1.2% average return but only a 45% win rate might be getting that average from a few outlier years with huge gains—less reliable. A stock with a 0.6% average return and a 70% win rate shows a more consistent historical pattern, even if the magnitude is smaller.
-                            </p>
+                                <p>
+                                    Both tables use color coding to help you quickly spot patterns. In the Average Return table, green cells indicate positive historical returns and red cells indicate negative. The deeper the color, the stronger the pattern. In the Win Rate table, the coloring reflects profitability percentage—darker greens indicate higher win rates (more consistent historical profitability), while lighter colors or reds indicate lower win rates.
+                                </p>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">The Years Column</h3>
+                                <p>
+                                    The most actionable setups typically show both strong average returns and high win rates. A stock with a 1.2% average return but only a 45% win rate might be getting that average from a few outlier years with huge gains—less reliable. A stock with a 0.6% average return and a 70% win rate shows a more consistent historical pattern, even if the magnitude is smaller.
+                                </p>
 
-                            <p>
-                                The &quot;Years&quot; column shows how many years of historical data were used to calculate each stock&apos;s seasonal statistics. More years generally means more statistical significance. A pattern based on 25 years of data is more trustworthy than one based on 5 years. Newer stocks or those with limited trading history will show fewer years—keep this in mind when evaluating the strength of their seasonal patterns.
-                            </p>
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Statistical Significance (Years of Data)</h3>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realistic Trading</h3>
+                                <p>
+                                    The &quot;Years&quot; column shows how many years of historical data were used to calculate each stock&apos;s seasonal statistics. More years generally means more statistical significance. A pattern based on 25 years of data is more trustworthy than one based on 5 years. Newer stocks or those with limited trading history will show fewer years—keep this in mind when evaluating the strength of their seasonal patterns.
+                                </p>
 
-                            <p>
-                                All forward return figures include a 0.10% round-trip commission deduction. This keeps the numbers grounded in reality—what looks like a 0.20% edge before costs might be barely breakeven after you account for spreads and execution. Patterns with returns well above 0.10% are more likely to remain profitable after real-world friction. The trailing return columns are actual price changes and do not include commission adjustments since they represent what already happened, not a hypothetical trade.
-                            </p>
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realistic Trading</h3>
 
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Putting It Into Practice</h3>
+                                <p>
+                                    All forward return figures include a 0.10% round-trip commission deduction. This keeps the numbers grounded in reality—what looks like a 0.20% edge before costs might be barely breakeven after you account for spreads and execution. Patterns with returns well above 0.10% are more likely to remain profitable after real-world friction. The trailing return columns are actual price changes and do not include commission adjustments since they represent what already happened, not a hypothetical trade.
+                                </p>
 
-                            <p>
-                                Use this snapshot as a screening tool to identify which stocks have historically favorable seasonality heading into the next trading session. Sort by the holding period that matches your typical trade duration—if you&apos;re a 3-5 day swing trader, focus on those columns. Look for stocks where strong average returns coincide with high win rates and a reasonable sample size (years of data).
-                            </p>
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Putting It Into Practice</h3>
 
-                            <p>
-                                Remember that seasonality is just one factor. A stock with great seasonal patterns can still drop if the company reports bad earnings or the broader market sells off. The trailing return columns help you see if the stock is already extended in one direction—a stock that&apos;s up 5% in the last 5 days might have already captured the seasonal move, or it might indicate momentum that will continue. Combine this data with your own chart analysis and awareness of upcoming catalysts for the best results.
-                            </p>
-                        </div>
-                    </section>
-                </div>
-            )}
-        </div>
+                                <p>
+                                    Use this snapshot as a screening tool to identify which stocks have historically favorable seasonality heading into the next trading session. Sort by the holding period that matches your typical trade duration—if you&apos;re a 3-5 day swing trader, focus on those columns. Look for stocks where strong average returns coincide with high win rates and a reasonable sample size (years of data).
+                                </p>
+
+                                <p>
+                                    Remember that seasonality is just one factor. A stock with great seasonal patterns can still drop if the company reports bad earnings or the broader market sells off. The trailing return columns help you see if the stock is already extended in one direction—a stock that&apos;s up 5% in the last 5 days might have already captured the seasonal move, or it might indicate momentum that will continue. Combine this data with your own chart analysis and awareness of upcoming catalysts for the best results.
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }

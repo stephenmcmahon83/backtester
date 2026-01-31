@@ -131,109 +131,133 @@ export default function StreakSinglePage() {
     });
 
     return (
-        <div 
-            className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
-            style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
-        >
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Single Stock Streak Analyzer</h1>
-                <p className="text-gray-500">
-                    Results based on entering/exiting on the next day&apos;s open, and include 0.10% round-trip commission.
-                </p>
-            </header>
-            
-            <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-end gap-6">
-                <div>
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Select Ticker Symbol</label>
-                    <div className="relative w-64">
-                        <select
-                            value={ticker}
-                            onChange={(e) => setTicker(e.target.value)}
-                            className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
-                        >
-                            {symbolList.map((sym) => (
-                                <option key={sym} value={sym}>{sym}</option>
-                            ))}
-                        </select>
-                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+        <>
+            {/* 
+              JSON-LD SCHEMA
+              Tells Google this is a Streak/Probability Tool.
+            */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": "Winning & Losing Streak Calculator",
+                        "applicationCategory": "FinanceApplication",
+                        "operatingSystem": "Web",
+                        "description": "A tool to backtest stock performance after N consecutive up or down days (mean reversion analysis).",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        }
+                    })
+                }}
+            />
+
+            <div 
+                className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
+                style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
+            >
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Single Stock Streak Analyzer</h1>
+                    <p className="text-gray-500">
+                        Results based on entering/exiting on the next day&apos;s open, and include 0.10% round-trip commission.
+                    </p>
+                </header>
+                
+                <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-end gap-6">
+                    <div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Select Ticker Symbol</label>
+                        <div className="relative w-64">
+                            <select
+                                value={ticker}
+                                onChange={(e) => setTicker(e.target.value)}
+                                className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                            >
+                                {symbolList.map((sym) => (
+                                    <option key={sym} value={sym}>{sym}</option>
+                                ))}
+                            </select>
+                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                            </div>
                         </div>
                     </div>
+
+                    {/* Current Streak Banner */}
+                    {!loading && currentStreak !== null && (
+                        <div className="px-6 py-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm flex items-center gap-3">
+                             <span className="text-blue-600 font-bold text-lg">
+                                Current Streak: 
+                            </span>
+                            <span className={`text-2xl font-extrabold ${currentStreak > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {currentStreak > 0 ? `+${currentStreak}` : currentStreak}
+                            </span>
+                            <span className="text-xs text-blue-400 font-medium ml-1">
+                                (Highlighted in table)
+                            </span>
+                        </div>
+                    )}
+
+                    {loading && <span className="mb-3 text-blue-600 text-sm font-medium">Analyzing historical streaks...</span>}
                 </div>
 
-                {/* Current Streak Banner */}
-                {!loading && currentStreak !== null && (
-                    <div className="px-6 py-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm flex items-center gap-3">
-                         <span className="text-blue-600 font-bold text-lg">
-                            Current Streak: 
-                        </span>
-                        <span className={`text-2xl font-extrabold ${currentStreak > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {currentStreak > 0 ? `+${currentStreak}` : currentStreak}
-                        </span>
-                        <span className="text-xs text-blue-400 font-medium ml-1">
-                            (Highlighted in table)
-                        </span>
-                    </div>
+                {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
+
+                {!loading && data.length > 0 && (
+                    <>
+                        <section>
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-bold text-gray-800">Historical Performance</h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Combined view of average returns and win rates by streak count.
+                                </p>
+                            </div>
+                            <StreaksTable 
+                                data={data} 
+                                columns={combinedColumns} 
+                                highlightVal={currentStreak}
+                            />
+                        </section>
+
+                        {/* --- EDUCATIONAL CONTENT SECTION (SEO OPTIMIZED) --- */}
+                        <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Trading Winning & Losing Streaks</h2>
+                            
+                            <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                                <p>
+                                    A streak is simply a run of consecutive up or down days. If a stock closes higher than the previous day, that&apos;s a +1 day. String three of those together and you&apos;ve got a +3 streak. The same logic applies to down days—two consecutive lower closes would be a -2 streak. This tool scans the entire price history of the selected stock to identify every streak and measure what happened next.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Strategy 1: "Buying the Dip" (Mean Reversion)</h3>
+
+                                <p>
+                                    Many traders look for losing streaks (e.g., -3 to -5 days) as an opportunity to "buy the dip," assuming the stock is oversold and due for a bounce. This calculator lets you test that theory. Look at the rows for -3, -4, and -5. Do the <strong>Avg Return</strong> and <strong>Win%</strong> columns turn positive? If so, the stock has historically demonstrated mean reversion tendencies.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Strategy 2: Riding Momentum (Winning Streaks)</h3>
+
+                                <p>
+                                    Conversely, momentum traders look for winning streaks as a sign of strength, hoping to ride the trend higher. By looking at positive streak values (+3, +5, +10), you can see if the stock tends to continue its run or if it typically pulls back (overbought). High win rates in the +1D or +3D columns after a long winning streak suggest strong momentum continuation.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Current Streak and Practical Use</h3>
+
+                                <p>
+                                    The banner at the top displays the stock&apos;s current streak based on the most recent trading data. The corresponding row in the table gets highlighted so you can quickly see the historical performance for that exact scenario. If the stock is currently on a +4 streak, you can immediately check what has happened historically after previous +4 streaks.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realism</h3>
+
+                                <p>
+                                    Every return figure you see already includes a 0.10% round-trip commission deduction. Strategies that show barely positive returns before costs often turn negative once you account for execution friction, so the numbers here are designed to keep your expectations grounded.
+                                </p>
+                            </div>
+                        </section>
+                    </>
                 )}
-
-                {loading && <span className="mb-3 text-blue-600 text-sm font-medium">Analyzing historical streaks...</span>}
             </div>
-
-            {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
-
-            {!loading && data.length > 0 && (
-                <>
-                    <section>
-                        <div className="mb-4">
-                            <h2 className="text-2xl font-bold text-gray-800">Historical Performance</h2>
-                            <p className="text-sm text-gray-500 mt-1">
-                                Combined view of average returns and win rates by streak count.
-                            </p>
-                        </div>
-                        <StreaksTable 
-                            data={data} 
-                            columns={combinedColumns} 
-                            highlightVal={currentStreak}
-                        />
-                    </section>
-
-                    <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">How the Streak Strategy Works</h2>
-                        
-                        <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
-                            <p>
-                                A streak is simply a run of consecutive up or down days. If a stock closes higher than the previous day, that&apos;s a +1 day. String three of those together and you&apos;ve got a +3 streak. The same logic applies to down days—two consecutive lower closes would be a -2 streak. This tool scans the entire price history of the selected stock, identifies every streak that occurred, and then measures what happened next. The idea is to find out whether certain streak lengths tend to precede predictable moves, either as continuation (momentum) or reversal (mean reversion).
-                            </p>
-
-                            <p>
-                                When a streak ends, the backtester assumes you enter a long position at the following day&apos;s opening price. This is a realistic assumption because you can&apos;t act on today&apos;s closing data until tomorrow&apos;s session. The trade is then held for various forward periods—1, 2, 3, 5, and 10 trading days—and the return is calculated based on the opening price of the exit day. By testing multiple holding periods, you can see whether the edge (if any) shows up immediately or takes a few days to play out, which matters for how you&apos;d actually structure a trade.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Reading the Results Table</h3>
-
-                            <p>
-                                Each row represents a specific streak value. Positive numbers indicate winning streaks (consecutive up days), negative numbers indicate losing streaks (consecutive down days). The &quot;Trades&quot; column shows how many times that exact streak occurred in the historical data—this is your sample size, and it matters. A streak that only happened five times might show a great average return, but that&apos;s not statistically meaningful. You want to pay closer attention to streaks with dozens or hundreds of occurrences.
-                            </p>
-
-                            <p>
-                                The &quot;Avg&quot; columns show the average return across all trades for that streak and holding period. The &quot;Win%&quot; columns show what percentage of those trades ended in profit. These two metrics tell different stories. A high average return with a low win rate suggests a pattern driven by occasional large gains—potentially useful but psychologically difficult to trade. A more modest average with a high win rate points to something steadier and more consistent. Neither is inherently better; it depends on your goals and risk tolerance. You can click on any column header to sort the table by that metric—helpful if you want to quickly find the streaks with the highest win rates or the best average returns across a specific holding period.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Current Streak and Practical Use</h3>
-
-                            <p>
-                                The banner at the top displays the stock&apos;s current streak based on the most recent trading data. The corresponding row in the table gets highlighted so you can quickly see the historical performance for that exact scenario. If the stock is currently on a +4 streak, you can immediately check what has happened historically after previous +4 streaks. This gives you a data-driven starting point for thinking about the next trade, though it&apos;s never a guarantee—markets can and do behave differently than their past patterns.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realism</h3>
-
-                            <p>
-                                Every return figure you see already includes a 0.10% round-trip commission deduction. This approximates the real-world cost of entering and exiting a position through a typical retail brokerage, including spreads. It&apos;s a small number on any single trade, but it adds up fast if you&apos;re trading frequently. Strategies that show barely positive returns before costs often turn negative once you account for execution friction, so the numbers here are designed to keep your expectations grounded. If something looks good after costs, it&apos;s worth investigating further—but always remember that backtested results represent the past, not a promise about the future.
-                            </p>
-                        </div>
-                    </section>
-                </>
-            )}
-        </div>
+        </>
     );
 }

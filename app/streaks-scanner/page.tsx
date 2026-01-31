@@ -9,92 +9,38 @@ const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default function StreakDashboard() {
+export default function StreakSinglePage() {
+    const [ticker, setTicker] = useState<string>(''); 
+    const [symbolList, setSymbolList] = useState<string[]>([]);
+    
     const [data, setData] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [currentStreak, setCurrentStreak] = useState<number | null>(null);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    // --- Enhanced Copy/Paste/Screenshot Protection ---
+    // --- Copy/Paste Protection ---
     useEffect(() => {
-        // Prevent right-click context menu
         const handleContextMenu = (e: MouseEvent) => e.preventDefault();
-        
-        // Prevent keyboard shortcuts (copy, paste, save, select all, view source, dev tools)
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Ctrl/Cmd + C, V, X, A, U, S, P (print)
             if (
                 (e.ctrlKey || e.metaKey) && 
-                ['c', 'v', 'x', 'a', 'u', 's', 'p'].includes(e.key.toLowerCase())
+                ['c', 'v', 'x', 'a', 'u', 's'].includes(e.key.toLowerCase())
             ) {
                 e.preventDefault();
             }
-            // F12 (dev tools)
-            if (e.key === 'F12') {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
-            }
-            // Ctrl+Shift+I (dev tools), Ctrl+Shift+J (console), Ctrl+Shift+C (inspect)
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && ['i', 'j', 'c'].includes(e.key.toLowerCase())) {
-                e.preventDefault();
-            }
-            // PrintScreen key (limited effectiveness)
-            if (e.key === 'PrintScreen') {
-                e.preventDefault();
-                navigator.clipboard.writeText('');
             }
         };
-        
-        // Prevent text selection
         const handleSelectStart = (e: Event) => e.preventDefault();
-        
-        // Prevent drag
         const handleDragStart = (e: Event) => e.preventDefault();
-        
-        // Prevent copy event
-        const handleCopy = (e: Event) => {
-            e.preventDefault();
-        };
-
-        // Prevent cut event
-        const handleCut = (e: Event) => {
-            e.preventDefault();
-        };
-
-        // Prevent paste event
-        const handlePaste = (e: Event) => {
-            e.preventDefault();
-        };
-
-        // Blur content when window loses focus (anti-screenshot measure)
-        const handleVisibilityChange = () => {
-            const content = document.getElementById('protected-content');
-            if (content) {
-                if (document.hidden) {
-                    content.style.filter = 'blur(10px)';
-                } else {
-                    content.style.filter = 'none';
-                }
-            }
-        };
-
-        // Prevent printing
-        const handleBeforePrint = () => {
-            document.body.style.display = 'none';
-        };
-
-        const handleAfterPrint = () => {
-            document.body.style.display = 'block';
-        };
+        const handleCopy = (e: Event) => e.preventDefault();
 
         document.addEventListener('contextmenu', handleContextMenu);
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('selectstart', handleSelectStart);
         document.addEventListener('dragstart', handleDragStart);
         document.addEventListener('copy', handleCopy);
-        document.addEventListener('cut', handleCut);
-        document.addEventListener('paste', handlePaste);
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('beforeprint', handleBeforePrint);
-        window.addEventListener('afterprint', handleAfterPrint);
 
         return () => {
             document.removeEventListener('contextmenu', handleContextMenu);
@@ -102,29 +48,53 @@ export default function StreakDashboard() {
             document.removeEventListener('selectstart', handleSelectStart);
             document.removeEventListener('dragstart', handleDragStart);
             document.removeEventListener('copy', handleCopy);
-            document.removeEventListener('cut', handleCut);
-            document.removeEventListener('paste', handlePaste);
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('beforeprint', handleBeforePrint);
-            window.removeEventListener('afterprint', handleAfterPrint);
         };
     }, []);
 
+    // 1. Fetch Symbol List
     useEffect(() => {
-        const fetchDashboardData = async () => {
+        const fetchSymbols = async () => {
+            const { data: symData } = await supabase
+                .from('symbols')
+                .select('symbol')
+                .order('symbol', { ascending: true });
+
+            if (symData && symData.length > 0) {
+                const list = symData.map((row: any) => row.symbol);
+                setSymbolList(list);
+                const defaultSym = list.includes('SPY') ? 'SPY' : list[0];
+                setTicker(defaultSym);
+            }
+        };
+        fetchSymbols();
+    }, []);
+
+    // 2. Fetch Streak Data for Ticker
+    useEffect(() => {
+        if (!ticker) return;
+
+        const fetchData = async () => {
             setLoading(true);
             setError(null);
+            setCurrentStreak(null);
             
             try {
                 const { data: responseData, error: functionError } = await supabase.functions.invoke(
-                    'calculate-streaks',
-                    { method: 'POST' } 
+                    'calculate-streaks', 
+                    {
+                        body: JSON.stringify({ ticker: ticker.toUpperCase() }),
+                        headers: { "Content-Type": "application/json" }
+                    }
                 );
 
                 if (functionError) throw functionError;
-                if (!responseData) throw new Error("No data returned");
+                if (!responseData || !responseData.rows) throw new Error("No data returned");
 
-                setData(responseData);
+                setData(responseData.rows);
+                
+                if (responseData.currentStreak !== undefined) {
+                    setCurrentStreak(responseData.currentStreak);
+                }
 
             } catch (err: any) {
                 console.error("Error fetching data:", err);
@@ -134,15 +104,15 @@ export default function StreakDashboard() {
             }
         };
 
-        fetchDashboardData();
-    }, []);
+        fetchData();
+    }, [ticker]);
 
+    // 3. Define Combined Columns (Interleaved)
     const forwardDays = [1, 2, 3, 5, 10];
     
     const combinedColumns: any[] = [
-        { header: 'Symbol', accessorKey: 'symbol' },
-        { header: 'Current Streak', accessorKey: 'current_streak' },
-        { header: 'Hist. Count', accessorKey: 'occurrence_count' },
+        { header: 'Streak', accessorKey: 'streak_val' },
+        { header: 'Trades', accessorKey: 'count' }
     ];
 
     forwardDays.forEach(d => {
@@ -161,82 +131,133 @@ export default function StreakDashboard() {
     });
 
     return (
-        <div 
-            id="protected-content"
-            className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
-            style={{ 
-                userSelect: 'none', 
-                WebkitUserSelect: 'none', 
-                MozUserSelect: 'none', 
-                msUserSelect: 'none',
-                WebkitTouchCallout: 'none',
-            } as React.CSSProperties}
-        >
-            <header className="mb-8">
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Market Streak Scanner</h1>
-                <p className="text-gray-500">
-                    Showing current streaks for all stocks and their historical forward returns.
-                    <br/>
-                    <span className="text-xs text-gray-400">
+        <>
+            {/* 
+              JSON-LD SCHEMA
+              Tells Google this is a Streak/Probability Tool.
+            */}
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify({
+                        "@context": "https://schema.org",
+                        "@type": "SoftwareApplication",
+                        "name": "Winning & Losing Streak Calculator",
+                        "applicationCategory": "FinanceApplication",
+                        "operatingSystem": "Web",
+                        "description": "A tool to backtest stock performance after N consecutive up or down days (mean reversion analysis).",
+                        "offers": {
+                            "@type": "Offer",
+                            "price": "0",
+                            "priceCurrency": "USD"
+                        }
+                    })
+                }}
+            />
+
+            <div 
+                className="p-8 max-w-[1600px] mx-auto min-h-screen bg-white"
+                style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' } as React.CSSProperties}
+            >
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Single Stock Streak Analyzer</h1>
+                    <p className="text-gray-500">
                         Results based on entering/exiting on the next day&apos;s open, and include 0.10% round-trip commission.
-                    </span>
-                </p>
-            </header>
-            
-            {loading && <div className="text-center p-10 text-blue-600 font-medium">Scanning market streaks...</div>}
-            {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
-
-            {!loading && data.length > 0 && (
-                <>
-                    <section>
-                        <StreaksTable 
-                            data={data} 
-                            columns={combinedColumns} 
-                        />
-                    </section>
-
-                    {/* --- EDUCATIONAL CONTENT SECTION --- */}
-                    <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">How the Market Streak Scanner Works</h2>
-                        
-                        <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
-                            <p>
-                                This scanner gives you a bird&apos;s-eye view of streak activity across the entire market. Rather than analyzing one stock at a time, it pulls every symbol in the database and shows you what kind of streak each one is currently on—along with the historical performance data for that exact streak. If you&apos;re looking for mean-reversion setups after extended losing streaks, or momentum plays following a run of green days, this is where you start.
-                            </p>
-
-                            <p>
-                                Each row in the table represents a single stock. The &quot;Current Streak&quot; column tells you how many consecutive up or down days that stock has logged heading into the next session. A +5 means five straight days of higher closes; a -3 means three straight days of lower closes. The &quot;Hist. Count&quot; column shows how many times that exact streak length has occurred for that particular stock in the past—basically your sample size. If a stock has only seen a +6 streak twice in its history, the forward return data is interesting but not statistically reliable. Stocks with higher counts give you more confidence that the pattern has repeated enough times to mean something.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Understanding the Columns</h3>
-
-                            <p>
-                                The numbered columns (+1D, +2D, +3D, +5D, +10D) show what happened after each historical occurrence of that streak. &quot;Avg&quot; is the average return across all those trades, and &quot;Win%&quot; is the percentage that ended in profit. You&apos;ll often notice that short-term returns (1-2 days) behave differently than longer holds (5-10 days). Some streaks show immediate reversals that fade over time; others start slow and build momentum. Scanning across multiple time horizons helps you find the right fit for your trading style.
-                            </p>
-
-                            <p>
-                                All columns in the table are sortable—just click on any header to reorder the data. This is useful when you want to quickly find the stocks with the most extreme current streaks, the highest historical win rates, or the largest average returns for a particular holding period. Sorting by &quot;+1D Avg&quot; descending, for example, surfaces the stocks that have historically bounced hardest the day after their current streak pattern.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Trade Execution and Costs</h3>
-
-                            <p>
-                                The backtester assumes you enter at the next day&apos;s opening price after a streak is identified—because in real life, you can&apos;t act on today&apos;s close until tomorrow. Exits are also based on the opening price of the target day. This &quot;open-to-open&quot; methodology is more realistic than close-to-close calculations, which can overstate returns by assuming perfect execution at prices you couldn&apos;t actually get.
-                            </p>
-
-                            <p>
-                                Every return figure already has a 0.10% round-trip commission baked in. That covers the cost of buying and selling through a typical retail broker, including the bid-ask spread. It&apos;s a small drag on any single trade, but it compounds quickly if you&apos;re trading frequently or chasing tiny edges. If a strategy shows 0.05% average return before costs, it&apos;s underwater in the real world. The numbers here are designed to reflect what you&apos;d actually keep, not theoretical profits that evaporate once you start executing.
-                            </p>
-
-                            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Putting It Into Practice</h3>
-
-                            <p>
-                                Use this scanner as a filtering tool, not an auto-trading signal. When you see a stock with a notable streak, strong historical returns, and a decent sample size, that&apos;s worth a closer look—but you should still consider the broader context. Is there an earnings report coming? A sector-wide trend? Unusual volume? The data here tells you what has happened before; your job as a trader is to decide whether the current situation is comparable. Backtested edges are a starting point for research, not a substitute for judgment.
-                            </p>
+                    </p>
+                </header>
+                
+                <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-end gap-6">
+                    <div>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Select Ticker Symbol</label>
+                        <div className="relative w-64">
+                            <select
+                                value={ticker}
+                                onChange={(e) => setTicker(e.target.value)}
+                                className="block appearance-none w-full bg-gray-50 border border-gray-300 text-gray-900 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-blue-500"
+                            >
+                                {symbolList.map((sym) => (
+                                    <option key={sym} value={sym}>{sym}</option>
+                                ))}
+                            </select>
+                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                            </div>
                         </div>
-                    </section>
-                </>
-            )}
-        </div>
+                    </div>
+
+                    {/* Current Streak Banner */}
+                    {!loading && currentStreak !== null && (
+                        <div className="px-6 py-3 bg-blue-50 border border-blue-200 rounded-lg shadow-sm flex items-center gap-3">
+                             <span className="text-blue-600 font-bold text-lg">
+                                Current Streak: 
+                            </span>
+                            <span className={`text-2xl font-extrabold ${currentStreak > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {currentStreak > 0 ? `+${currentStreak}` : currentStreak}
+                            </span>
+                            <span className="text-xs text-blue-400 font-medium ml-1">
+                                (Highlighted in table)
+                            </span>
+                        </div>
+                    )}
+
+                    {loading && <span className="mb-3 text-blue-600 text-sm font-medium">Analyzing historical streaks...</span>}
+                </div>
+
+                {error && <div className="text-red-700 bg-red-100 p-4 rounded mb-6">Error: {error}</div>}
+
+                {!loading && data.length > 0 && (
+                    <>
+                        <section>
+                            <div className="mb-4">
+                                <h2 className="text-2xl font-bold text-gray-800">Historical Performance</h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Combined view of average returns and win rates by streak count.
+                                </p>
+                            </div>
+                            <StreaksTable 
+                                data={data} 
+                                columns={combinedColumns} 
+                                highlightVal={currentStreak}
+                            />
+                        </section>
+
+                        {/* --- EDUCATIONAL CONTENT SECTION (SEO OPTIMIZED) --- */}
+                        <section className="mt-12 bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                            <h2 className="text-xl font-bold text-gray-900 mb-4">Trading Winning & Losing Streaks</h2>
+                            
+                            <div className="prose prose-gray max-w-none text-gray-700 space-y-4">
+                                <p>
+                                    A streak is simply a run of consecutive up or down days. If a stock closes higher than the previous day, that&apos;s a +1 day. String three of those together and you&apos;ve got a +3 streak. The same logic applies to down days—two consecutive lower closes would be a -2 streak. This tool scans the entire price history of the selected stock to identify every streak and measure what happened next.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Strategy 1: "Buying the Dip" (Mean Reversion)</h3>
+
+                                <p>
+                                    Many traders look for losing streaks (e.g., -3 to -5 days) as an opportunity to "buy the dip," assuming the stock is oversold and due for a bounce. This calculator lets you test that theory. Look at the rows for -3, -4, and -5. Do the <strong>Avg Return</strong> and <strong>Win%</strong> columns turn positive? If so, the stock has historically demonstrated mean reversion tendencies.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Strategy 2: Riding Momentum (Winning Streaks)</h3>
+
+                                <p>
+                                    Conversely, momentum traders look for winning streaks as a sign of strength, hoping to ride the trend higher. By looking at positive streak values (+3, +5, +10), you can see if the stock tends to continue its run or if it typically pulls back (overbought). High win rates in the +1D or +3D columns after a long winning streak suggest strong momentum continuation.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Current Streak and Practical Use</h3>
+
+                                <p>
+                                    The banner at the top displays the stock&apos;s current streak based on the most recent trading data. The corresponding row in the table gets highlighted so you can quickly see the historical performance for that exact scenario. If the stock is currently on a +4 streak, you can immediately check what has happened historically after previous +4 streaks.
+                                </p>
+
+                                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-2">Commissions and Realism</h3>
+
+                                <p>
+                                    Every return figure you see already includes a 0.10% round-trip commission deduction. Strategies that show barely positive returns before costs often turn negative once you account for execution friction, so the numbers here are designed to keep your expectations grounded.
+                                </p>
+                            </div>
+                        </section>
+                    </>
+                )}
+            </div>
+        </>
     );
 }

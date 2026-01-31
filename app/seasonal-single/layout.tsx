@@ -1,43 +1,38 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Stock Seasonality by Month - Historical Monthly Performance Analysis',
-  description: 'Analyze any stock\'s historical performance by trading day of the year over 20+ years. See which days have the highest win rates and average returns. Discover seasonal patterns for AAPL, MSFT, NVDA, SPY, QQQ, and 100+ stocks. Exploit calendar effects and recurring market patterns.',
+  // 1. "Best Day to Buy" is a specific long-tail query traders use
+  title: 'Stock Seasonality Calculator | Best Day to Buy AAPL, NVDA, SPY',
+  
+  // 2. Explicitly listing tickers helps rank for "NVDA Seasonality", "Tesla Seasonality", etc.
+  description: 'Free Stock Seasonality Calculator. Analyze 20+ years of daily patterns for Apple (AAPL), Nvidia (NVDA), Tesla (TSLA), and SPY. Find the best historical trading days.',
+  
   keywords: [
-    'stock seasonality',
-    'stock seasonality by month',
-    'stock seasonality by day',
-    'best day to buy stocks',
-    'stock daily returns',
-    'AAPL seasonality',
-    'SPY seasonality',
-    'NVDA seasonality',
-    'January effect stocks',
-    'sell in May go away',
-    'Santa Claus rally',
-    'stock calendar patterns',
-    'seasonal stock trading',
-    'trading day patterns',
-    'daily stock performance history',
-    'best performing days stocks',
-    'worst days for stocks',
-    'calendar effects',
-    'stock market anomalies',
+    'stock seasonality calculator', // Primary keyword
+    'best day to buy apple stock',
+    'NVDA seasonal patterns',
+    'monthly stock returns history',
+    'stock market heat map',
+    'AAPL seasonality chart',
+    'TSLA historical returns',
+    'swing trading calendar',
+    'january effect calculator',
+    'sell in may indicator'
   ],
   alternates: {
     canonical: 'https://finbacktester.com/seasonal-single',
   },
   openGraph: {
-    title: 'Stock Seasonality by Trading Day | FinBacktester',
-    description: 'Which trading days are best for buying stocks? Analyze 20+ years of historical daily performance for any stock. Free seasonality tool.',
+    title: 'Stock Seasonality Calculator | FinBacktester',
+    description: 'Find the best day of the year to buy any stock. Analyze 20 years of historical win rates for AAPL, NVDA, TSLA, and more.',
     url: 'https://finbacktester.com/seasonal-single',
     siteName: 'FinBacktester',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Stock Seasonality Analysis | FinBacktester',
-    description: 'Discover seasonal patterns in any stock. See historical win rates and returns by trading day of year.',
+    title: 'Stock Seasonality Calculator',
+    description: 'Analyze historical daily patterns for any US stock. Free seasonality heatmap tool.',
   },
 };
 

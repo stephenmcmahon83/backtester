@@ -194,106 +194,116 @@ export default function StockAnalyzer() {
 
   /* ------- UI ------- */
   return (
-    <div 
-      id="protected-content"
-      className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800"
-      style={{ 
-        userSelect: 'none', 
-        WebkitUserSelect: 'none', 
-        MozUserSelect: 'none', 
-        msUserSelect: 'none',
-        WebkitTouchCallout: 'none',
-      } as React.CSSProperties}
-    >
-      {/* header */}
-      <Header
-        ticker={ticker} setTicker={setTicker}
-        loading={loading} currentPrice={data?.price}
-        onSearch={handleSearch}
+    <>
+      {/* 
+        JSON-LD SCHEMA
+        Tells Google this is a "Valuation Calculator" Tool.
+      */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "Intrinsic Value Calculator (15x Earnings)",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Web",
+            "description": "A fundamental analysis tool that calculates stock fair value using the Peter Lynch 15x Earnings model.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "featureList": [
+              "Historical Fair Value Chart",
+              "EPS and Revenue Analysis",
+              "Debt to Equity Ratios"
+            ]
+          })
+        }}
       />
 
-      {loading && <Alert color="blue" msg={`Analyzing ${ticker}… (Note: If this is the first search in 15 mins, it may take 45 seconds to wake up the server)`} />}
-      {error && <Alert color="red" msg={error} />}
+      <div 
+        id="protected-content"
+        className="min-h-screen bg-slate-50 p-6 font-sans text-slate-800"
+        style={{ 
+          userSelect: 'none', 
+          WebkitUserSelect: 'none', 
+          MozUserSelect: 'none', 
+          msUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+        } as React.CSSProperties}
+      >
+        {/* header */}
+        <Header
+          ticker={ticker} setTicker={setTicker}
+          loading={loading} currentPrice={data?.price}
+          onSearch={handleSearch}
+        />
 
-      {data && !loading && (
-        <div className="max-w-[95%] mx-auto space-y-6">
-          {/* chart */}
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-            <Chart points={chartPoints} history={data.history} customTicks={xAxisTicks} />
-          </div>
+        {loading && <Alert color="blue" msg={`Analyzing ${ticker}… (Note: If this is the first search in 15 mins, it may take 45 seconds to wake up the server)`} />}
+        {error && <Alert color="red" msg={error} />}
 
-          {/* table */}
-          <FinancialTable data={data} />
+        {data && !loading && (
+          <div className="max-w-[95%] mx-auto space-y-6">
+            {/* chart */}
+            <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <Chart points={chartPoints} history={data.history} customTicks={xAxisTicks} />
+            </div>
 
-          {/* --- EDUCATIONAL CONTENT SECTION --- */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Understanding the Valuation Data</h2>
-            
-            <div className="prose prose-slate max-w-none text-slate-700 space-y-4">
+            {/* table */}
+            <FinancialTable data={data} />
+
+            {/* --- EDUCATIONAL CONTENT SECTION (SEO OPTIMIZED) --- */}
+            <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-slate-900 mb-4">How to Calculate Intrinsic Value (15x Model)</h2>
               
-              {/* Data Warning */}
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                <p className="text-amber-800 text-sm">
-                  <strong>Note:</strong> Some stocks—particularly ADRs (American Depositary Receipts), foreign companies, REITs, and certain smaller-cap names—may have incomplete or missing data for certain years or metrics. Financial sector companies (banks, insurance) may also show dashes for metrics that don&apos;t apply to their business models. This is a limitation of the underlying data sources and does not indicate an error. Always cross-reference with official SEC filings or the company&apos;s investor relations page for critical investment decisions.
+              <div className="prose prose-slate max-w-none text-slate-700 space-y-4">
+                
+                {/* Data Warning */}
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                  <p className="text-amber-800 text-sm">
+                    <strong>Note:</strong> Some stocks—particularly ADRs, foreign companies, and REITs—may have incomplete data. Financial sector companies may show dashes for inapplicable metrics. Always cross-reference with SEC filings.
+                  </p>
+                </div>
+
+                <p>
+                  This tool helps you quickly assess if a stock is trading above or below its &quot;Fair Value&quot;. The chart plots the actual stock price against a valuation benchmark derived from the company&apos;s earnings power.
+                </p>
+
+                <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">The Peter Lynch Valuation Method (15x PE)</h3>
+
+                <p>
+                  The orange line on the chart represents 15 times the company&apos;s annual EPS. This is often called the &quot;Peter Lynch Fair Value&quot; rule of thumb. A P/E ratio of 15 implies a company is fairly priced if it is growing at an average rate (historically about 15% for fast growers, or simply because the market average P/E is often around 15).
+                </p>
+
+                <p>
+                  When the black price line is well above the orange 15x line, the stock is trading at a premium—investors are optimistic about future growth. When it&apos;s below, the stock may be undervalued. This serves as a quick &quot;Intrinsic Value&quot; check before doing deeper research.
+                </p>
+
+                <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Analyzing EPS & Revenue Per Share</h3>
+
+                <p>
+                  <strong>EPS (Earnings Per Share)</strong> is the foundation of most valuation work. Rising EPS over time is a positive sign. <strong>Revenue Per Share</strong> removes the effect of share count changes and shows whether the company is growing its top line on a per-share basis—important because some companies grow revenue but dilute shareholders so heavily that per-share value doesn&apos;t increase.
+                </p>
+
+                <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Debt and Valuation Ratios</h3>
+
+                <p>
+                  <strong>ROE (Return on Equity)</strong> measures how efficiently the company turns shareholder capital into profit. A consistently high ROE—above 15%—often indicates a durable competitive advantage. <strong>Debt to Equity</strong> reveals leverage. Rising debt-to-equity over time is a warning sign.
+                </p>
+
+                <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">How to Use This Calculator</h3>
+
+                <p>
+                  Use this tool to look for divergence. If the stock price has fallen significantly below the 15x Earnings line while earnings are still growing, it may represent a buying opportunity (Margin of Safety). Conversely, if the price has gone parabolic far above the 15x line, the stock may be overextended and due for a correction.
                 </p>
               </div>
-
-              <p>
-                This tool gives you a visual and numerical breakdown of a company&apos;s financial history, designed to help you quickly assess whether a stock is trading above or below a reasonable estimate of fair value. The chart plots the actual stock price against a simple valuation benchmark—15 times earnings per share—so you can see at a glance how the market&apos;s pricing has compared to the company&apos;s underlying profitability over time.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">The 15x Earnings Model</h3>
-
-              <p>
-                The orange line on the chart represents 15 times the company&apos;s annual EPS. Why 15? It&apos;s a rough approximation of fair value for a stable, average-growth company. A P/E ratio of 15 implies that if you bought the entire company at that price, it would take 15 years of current earnings to recoup your investment—assuming no growth. Faster-growing companies often trade at higher multiples; slower growers or companies in decline often trade below. By comparing the actual stock price (black line) to the 15x EPS line, you can see whether the market has historically been willing to pay a premium or demanded a discount relative to this benchmark.
-              </p>
-
-              <p>
-                When the black price line is well above the orange 15x line, the stock is trading at a premium—investors are optimistic about future growth. When it&apos;s below, the stock may be undervalued, or investors may be concerned about the company&apos;s prospects. Neither is automatically a buy or sell signal; context matters. A stock trading at 25x earnings might be a bargain if it&apos;s growing 30% a year, while a stock at 10x might be a trap if earnings are collapsing.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Per Share Data Section</h3>
-
-              <p>
-                <strong>EPS (Earnings Per Share)</strong> is the foundation of most valuation work—it tells you how much profit the company earned for each share outstanding. Rising EPS over time is a positive sign; declining or erratic EPS raises questions. <strong>Dividends</strong> show cash returned to shareholders; compare this to EPS to see the payout ratio. If dividends exceed EPS consistently, that&apos;s unsustainable. <strong>Revenue Per Share</strong> removes the effect of share count changes and shows whether the company is growing its top line on a per-share basis—important because some companies grow revenue but dilute shareholders so heavily that per-share value doesn&apos;t increase.
-              </p>
-
-              <p>
-                <strong>Book Value</strong> represents the net assets of the company (assets minus liabilities) divided by shares outstanding. It&apos;s a rough measure of what shareholders would receive if the company liquidated. Stocks trading below book value may be undervalued—or the assets may be impaired. <strong>Stock Price High</strong> and <strong>Low</strong> show the trading range for each year, giving you a sense of volatility and how the market&apos;s sentiment has swung over time.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Valuation Ratios Section</h3>
-
-              <p>
-                <strong>ROE (Return on Equity)</strong> measures how efficiently the company turns shareholder capital into profit. A consistently high ROE—above 15%—often indicates a durable competitive advantage. <strong>ROIC (Return on Invested Capital)</strong> is broader, including debt in the capital base; it shows how well management allocates all capital, not just equity. High ROIC businesses can reinvest profits at attractive rates, compounding value over time.
-              </p>
-
-              <p>
-                <strong>Debt to Equity</strong> reveals leverage. A ratio of 1.0 means the company has equal debt and equity; above 2.0 starts to get risky for most industries. Rising debt-to-equity over time is a warning sign. <strong>Current Ratio</strong> (current assets divided by current liabilities) shows short-term liquidity—can the company pay its bills over the next year? Below 1.0 means current liabilities exceed current assets. <strong>EV/EBITDA</strong> is an enterprise value multiple that accounts for debt; lower numbers suggest cheaper valuations, but compare within industries since capital intensity varies.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Company Totals Section</h3>
-
-              <p>
-                <strong>Revenue</strong> and <strong>Net Income</strong> show the absolute size and profitability of the business. Growing revenue with stable or expanding profit margins is the ideal pattern. Flat revenue with shrinking margins suggests a company losing pricing power or facing cost pressures. <strong>Equity</strong> is the book value of shareholder ownership in absolute terms; <strong>Long-Term Debt</strong> shows the company&apos;s leverage in dollar terms. <strong>Shares Outstanding</strong> tracks dilution—if shares are increasing faster than earnings, EPS growth will lag net income growth, hurting per-share value.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Margins Section</h3>
-
-              <p>
-                <strong>Operating Margin</strong> shows what percentage of revenue remains after paying for the cost of goods and operating expenses—it reflects the efficiency of the core business. <strong>Profit Margin</strong> (net margin) is the bottom line: what percentage of revenue turns into actual profit after all expenses including interest and taxes. Expanding margins over time suggest improving efficiency or pricing power; contracting margins may indicate competitive pressure or rising costs. Comparing margins to industry peers helps you understand whether a company is best-in-class or struggling to keep up.
-              </p>
-
-              <h3 className="text-lg font-semibold text-slate-800 mt-6 mb-2">Using This Tool Effectively</h3>
-
-              <p>
-                The best way to use this data is to look for patterns and changes over time. Is EPS growing consistently? Are margins stable or improving? Is the company taking on more debt, or paying it down? Is the share count increasing or decreasing? A single year&apos;s numbers mean little in isolation—it&apos;s the trajectory that matters. The 15x earnings benchmark gives you a quick visual reference, but you should adjust your expectations based on the company&apos;s growth rate, competitive position, and industry dynamics. A high-quality compounder might deserve 25x or more; a cyclical business at peak earnings might be worth only 8x.
-              </p>
-            </div>
-          </section>
-        </div>
-      )}
-    </div>
+            </section>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -302,7 +312,7 @@ function Header({ ticker, setTicker, loading, currentPrice, onSearch }: any) {
   return (
     <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm mb-6 flex flex-col md:flex-row items-center justify-between gap-4 max-w-[95%] mx-auto">
       <div className="flex items-center gap-4 w-full md:w-auto">
-        <h1 className="text-2xl font-bold text-blue-700">Valuation Tool</h1>
+        <h1 className="text-2xl font-bold text-blue-700">Intrinsic Value Calculator</h1>
         <div className="flex gap-2">
           <input
             className="border border-slate-300 p-2 rounded-lg font-bold text-slate-700 uppercase focus:ring-2 focus:ring-blue-500 outline-none w-32 md:w-48"
