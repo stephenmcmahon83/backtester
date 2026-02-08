@@ -7,8 +7,10 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  // Toggle for the main mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
 
+  // Toggle for specific dropdowns on mobile
   const toggleDropdown = (name: string) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
@@ -39,51 +41,26 @@ export default function Navbar() {
           {/* DESKTOP MENU (Hidden on Mobile) */}
           <div className="hidden md:flex items-center gap-2">
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
-            
-            {/* ✅ IDEAS DROPDOWN - Single item inside */}
-            <div className="relative group z-50">
-              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Ideas <span className="text-xs">▼</span>
-              </button>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-72 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/economic-indicators" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
-                  <div className="font-medium">Data Releases & Market Reaction</div>
-                  <div className="text-xs text-gray-500 mt-0.5">GDP, CPI, Unemployment, Fed Funds & more</div>
-                </Link>
-              </div>
-            </div>
-
-            {/* FUNDAMENTALS DROPDOWN */}
-            <div className="relative group z-50">
-              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Fundamentals <span className="text-xs">▼</span>
-              </button>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/valuation" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Stock Financials/Valuation Tool</Link>
-              </div>
-            </div>
-
-            {/* SEPARATOR */}
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
             
             {/* Desktop Dropdown 1: Single Stock */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Single Stock <span className="text-xs">▼</span>
+                Single Stock Backtesting <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                 <Link href="/trend-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Trend Strategies</Link>
-                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Mean-Reversion</Link>
+                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Mean-Reversion Strategies</Link>
               </div>
             </div>
 
             {/* Desktop Dropdown 2: Portfolio */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Portfolio <span className="text-xs">▼</span>
+                Portfolio Backtesting <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/portfolio-momentum" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Monthly Momentum</Link>
+                <Link href="/portfolio-momentum" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">Monthly Momentum Rotation</Link>
               </div>
             </div>
 
@@ -93,8 +70,8 @@ export default function Navbar() {
                 Seasonality <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock - Full Year</Link>
-                <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks - Current</Link>
+                <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock/ETF - Full Year</Link>
+                <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks/ETFs - Current</Link>
               </div>
             </div>
 
@@ -104,27 +81,27 @@ export default function Navbar() {
                 Streaks <span className="text-xs">▼</span>
               </button>
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/streaks-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock - All Streaks</Link>
-                <Link href="/streaks-scanner" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks - Current Streaks</Link>
+                <Link href="/streaks-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock Analyzer</Link>
+                <Link href="/streaks-scanner" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">All Stocks Scanner</Link>
+              </div>
+            </div>
+
+            {/* Desktop Dropdown 5: RSI Analysis (NEW) */}
+            <div className="relative group z-50">
+              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
+                RSI Analysis <span className="text-xs">▼</span>
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/rsi-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">Single Stock RSI Buckets</Link>
+                <Link href="/rsi-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">RSI Market Scanner</Link>
               </div>
             </div>
 
             <div className="w-px h-6 bg-gray-300 mx-2"></div>
-            
             <div className="flex gap-1">
               <Link href="/about" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">About</Link>
               <Link href="/disclaimer" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Disclaimer</Link>
             </div>
-
-            {/* Donate Button */}
-            <a 
-              href="https://www.buymeacoffee.com/finbacktester.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="ml-2 bg-[#40DCA5] hover:bg-[#35b88a] text-white px-4 py-2 rounded-full text-sm font-bold shadow-sm transition-all transform hover:scale-105 flex items-center gap-1"
-            >
-              Donate
-            </a>
           </div>
 
           {/* MOBILE MENU BUTTON (Hamburger) */}
@@ -152,48 +129,13 @@ export default function Navbar() {
               Home
             </Link>
 
-            {/* ✅ IDEAS MOBILE DROPDOWN - Single item inside */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('ideas')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Ideas
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'ideas' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'ideas' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/economic-indicators" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Data Releases & Market Reaction
-                    <span className="block text-xs text-gray-400">GDP, CPI, Unemployment & more</span>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* MOBILE FUNDAMENTALS */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('fundamentals')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Fundamentals
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'fundamentals' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'fundamentals' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/valuation" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Stock Financials/Valuation Tool</Link>
-                </div>
-              )}
-            </div>
-
             {/* Mobile Dropdown 1: Single Stock */}
             <div>
               <button 
                 onClick={() => toggleDropdown('single')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               >
-                Single Stock
+                Single Stock Backtesting 
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'single' ? 'rotate-180' : ''}`}>▼</span>
               </button>
               {activeDropdown === 'single' && (
@@ -210,7 +152,7 @@ export default function Navbar() {
                 onClick={() => toggleDropdown('portfolio')} 
                 className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
               >
-                Portfolio
+                Portfolio Backtesting
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'portfolio' ? 'rotate-180' : ''}`}>▼</span>
               </button>
               {activeDropdown === 'portfolio' && (
@@ -231,8 +173,8 @@ export default function Navbar() {
               </button>
               {activeDropdown === 'seasonal' && (
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/seasonal-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock - Full Year</Link>
-                  <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks - Current</Link>
+                  <Link href="/seasonal-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock/ETF - Full Year</Link>
+                  <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>All Stocks/ETFs - Current</Link>
                 </div>
               )}
             </div>
@@ -254,19 +196,24 @@ export default function Navbar() {
               )}
             </div>
 
-            <div className="border-t border-gray-200 my-2"></div>
-            
-            {/* Donate Mobile */}
-            <a 
-              href="https://www.buymeacoffee.com/finbacktester.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block text-center bg-[#40DCA5] text-white px-3 py-2 rounded-md text-base font-bold shadow-sm mb-2"
-              onClick={toggleMenu}
-            >
-              Donate
-            </a>
+            {/* Mobile Dropdown 5: RSI Analysis (NEW) */}
+            <div>
+              <button 
+                onClick={() => toggleDropdown('rsi')} 
+                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                RSI Analysis
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'rsi' ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {activeDropdown === 'rsi' && (
+                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
+                  <Link href="/rsi-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Single Stock RSI Buckets</Link>
+                  <Link href="/rsi-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>RSI Market Scanner</Link>
+                </div>
+              )}
+            </div>
 
+            <div className="border-t border-gray-200 my-2"></div>
             <Link href="/about" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-indigo-600" onClick={toggleMenu}>About</Link>
             <Link href="/disclaimer" className="block px-3 py-2 rounded-md text-base font-medium text-gray-500 hover:text-indigo-600" onClick={toggleMenu}>Disclaimer</Link>
           </div>

@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* ✅ Google AdSense - Updated with your specific Publisher ID */}
+        {/* Google AdSense */}
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7685597249004029"
@@ -30,7 +30,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
-        {/* ✅ Google Analytics 4 */}
+        {/* Google Analytics 4 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-ZHMTEDND11"
           strategy="afterInteractive"

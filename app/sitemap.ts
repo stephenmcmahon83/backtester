@@ -14,5 +14,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "https://finbacktester.com/seasonal-single", lastModified: new Date() },
     { url: "https://finbacktester.com/streaks-single", lastModified: new Date() },
     { url: "https://finbacktester.com/streaks-scanner", lastModified: new Date() },
+    // NEW RSI PAGES
+    { url: "https://finbacktester.com/rsi-single", lastModified: new Date() },
+    { url: "https://finbacktester.com/rsi-dashboard", lastModified: new Date() },
   ];
 }

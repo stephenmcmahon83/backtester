@@ -20,12 +20,12 @@ export const metadata: Metadata = {
     'knife catching strategy'
   ],
   alternates: {
-    canonical: 'https://finbacktester.com/streaks-single',
+    canonical: 'https://finbacktester.com/streaks-scanner',
   },
   openGraph: {
     title: 'Stock Streak Backtester | Winning & Losing Streaks',
     description: 'See the historical win rate of buying a stock after 3, 5, or 10 consecutive down days. Free Mean Reversion Tool.',
-    url: 'https://finbacktester.com/streaks-single',
+    url: 'https://finbacktester.com/streaks-scanner',
     siteName: 'FinBacktester',
     type: 'website',
   },
