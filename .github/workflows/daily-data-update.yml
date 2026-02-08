@@ -1,0 +1,67 @@
+name: Daily Stock Data Update
+
+on:
+  schedule:
+    # Runs at 6:00 PM Eastern Time
+    # EST (winter): 6 PM = 11 PM UTC
+    # EDT (summer): 6 PM = 10 PM UTC
+    # Using 11 PM UTC - adjust to '0 22 * * 1-5' for summer time
+    - cron: '0 23 * * 1-5'
+  
+  # Allows you to manually trigger from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # Step 1: Checkout your repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      # Step 3: Install Python dependencies
+      # Add or remove packages based on what your scripts need
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install supabase
+          pip install python-dotenv
+          pip install requests
+          pip install pandas
+          pip install yfinance
+      
+      # Step 4: Run the calendar population script
+      - name: Populate Calendar
+        run: python populate_calendar.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      
+      # Step 5: Run the stock data download script
+      - name: Download Stock Data
+        run: python download_stock_data.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      
+      # Step 6: Commit and push any changes to the repository
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Daily update: calendar and stock data $(date +'%Y-%m-%d')"
+            git push
+          fi
