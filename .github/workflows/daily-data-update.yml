@@ -52,6 +52,25 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+            # After downloading stock data, save today's picks
+      - name: Save Daily Signal Picks
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/save-daily-picks" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json"
+            # After downloading stock data, save all daily picks
+      - name: Save Daily Signal Picks (RSI, Streak, Seasonal)
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/save-all-daily-picks" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json"
+
+      # Update exit prices for closed positions
+      - name: Update Pick Exits
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/update-pick-exits" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_KEY }}" \
+            -H "Content-Type: application/json"
       
       # Step 6: Commit and push any changes to the repository
       - name: Commit and Push Changes

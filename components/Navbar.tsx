@@ -7,10 +7,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  // Toggle for the main mobile menu
   const toggleMenu = () => setIsOpen(!isOpen);
 
-  // Toggle for specific dropdowns on mobile
   const toggleDropdown = (name: string) => {
     if (activeDropdown === name) {
       setActiveDropdown(null);
@@ -38,12 +36,29 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* DESKTOP MENU (Hidden on Mobile) */}
+          {/* DESKTOP MENU */}
           <div className="hidden md:flex items-center gap-2">
             <Link href="/" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">Home</Link>
             <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+            {/* Desktop Dropdown 1: Market Overview (NEW) */}
+            <div className="relative group z-50">
+              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
+                Market Overview <span className="text-xs">▼</span>
+              </button>
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/market-snapshot" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">
+                  <span className="font-semibold">Market Snapshot</span>
+                  <span className="block text-xs text-gray-500">Multi-factor scanner with composite scores</span>
+                </Link>
+                <Link href="/signal-tracker" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <span className="font-semibold">Signal Tracker</span>
+                  <span className="block text-xs text-gray-500">Track our daily picks performance</span>
+                </Link>
+              </div>
+            </div>
             
-            {/* Desktop Dropdown 1: Single Stock */}
+            {/* Desktop Dropdown 2: Single Stock */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Single Stock Backtesting <span className="text-xs">▼</span>
@@ -54,7 +69,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 2: Portfolio */}
+            {/* Desktop Dropdown 3: Portfolio */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Portfolio Backtesting <span className="text-xs">▼</span>
@@ -64,7 +79,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 3: Seasonality */}
+            {/* Desktop Dropdown 4: Seasonality */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Seasonality <span className="text-xs">▼</span>
@@ -75,7 +90,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 4: Streaks */}
+            {/* Desktop Dropdown 5: Streaks */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Streaks <span className="text-xs">▼</span>
@@ -86,7 +101,7 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* Desktop Dropdown 5: RSI Analysis (NEW) */}
+            {/* Desktop Dropdown 6: RSI Analysis */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 RSI Analysis <span className="text-xs">▼</span>
@@ -104,7 +119,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* MOBILE MENU BUTTON (Hamburger) */}
+          {/* MOBILE MENU BUTTON */}
           <div className="md:hidden flex items-center">
             <button onClick={toggleMenu} className="text-gray-700 hover:text-indigo-600 focus:outline-none p-2">
               {isOpen ? (
@@ -121,7 +136,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* MOBILE MENU DROPDOWN (Visible when Open) */}
+      {/* MOBILE MENU DROPDOWN */}
       {isOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 shadow-lg pb-4 px-4">
           <div className="flex flex-col space-y-2 pt-2">
@@ -129,7 +144,24 @@ export default function Navbar() {
               Home
             </Link>
 
-            {/* Mobile Dropdown 1: Single Stock */}
+            {/* Mobile Dropdown 1: Market Overview (NEW) */}
+            <div>
+              <button 
+                onClick={() => toggleDropdown('market')} 
+                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
+              >
+                Market Overview
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'market' ? 'rotate-180' : ''}`}>▼</span>
+              </button>
+              {activeDropdown === 'market' && (
+                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
+                  <Link href="/market-snapshot" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Market Snapshot</Link>
+                  <Link href="/signal-tracker" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>Signal Tracker</Link>
+                </div>
+              )}
+            </div>
+
+            {/* Mobile Dropdown 2: Single Stock */}
             <div>
               <button 
                 onClick={() => toggleDropdown('single')} 
@@ -146,7 +178,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 2: Portfolio */}
+            {/* Mobile Dropdown 3: Portfolio */}
             <div>
               <button 
                 onClick={() => toggleDropdown('portfolio')} 
@@ -162,7 +194,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 3: Seasonality */}
+            {/* Mobile Dropdown 4: Seasonality */}
             <div>
               <button 
                 onClick={() => toggleDropdown('seasonal')} 
@@ -179,7 +211,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 4: Streaks */}
+            {/* Mobile Dropdown 5: Streaks */}
             <div>
               <button 
                 onClick={() => toggleDropdown('streaks')} 
@@ -196,7 +228,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown 5: RSI Analysis (NEW) */}
+            {/* Mobile Dropdown 6: RSI Analysis */}
             <div>
               <button 
                 onClick={() => toggleDropdown('rsi')} 
