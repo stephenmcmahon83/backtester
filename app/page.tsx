@@ -28,7 +28,7 @@ export default function HomePage() {
         {
           title: 'Market Snapshot',
           href: '/market-snapshot',
-          description: 'A daily multi-factor scanner combining Streak, RSI, and Seasonal signals. Identify stocks with the strongest 5-day historical outlook.',
+          description: 'A daily multi-factor overview of 120 stocks.',
           color: 'bg-indigo-50 border-indigo-200 hover:border-indigo-400',
           badge: 'Daily Updated',
         },
@@ -47,7 +47,7 @@ export default function HomePage() {
         {
           title: 'Intrinsic Value Calculator',
           href: '/valuation',
-          description: 'Estimate fair value using a 15x earnings model. Explore 15 years of annual financial data including price vs. earnings power, ROE, and debt ratios.',
+          description: 'Estimate fair value using a 15x earnings model. Explore 15 years of annual financial data for individual stocks.',
           color: 'bg-blue-50 border-blue-200 hover:border-blue-400',
         },
         {
@@ -65,25 +65,25 @@ export default function HomePage() {
         {
           title: 'Trend Strategies',
           href: '/trend-strategies',
-          description: 'Backtest classic trend-following approaches using Donchian trend strategies on individual stocks to identify long-term opportunities.',
+          description: 'Backtest classic trend-following strategies on 120 individual stocks to identify long-term opportunities.',
           color: 'bg-cyan-50 border-cyan-200 hover:border-cyan-400',
         },
         {
           title: 'Mean Reversion',
           href: '/connors-strategies',
-          description: 'Test mean-reversion strategies designed to capitalize on short-term pullbacks. Evaluate performance across your preferred tickers.',
+          description: 'Test mean-reversion strategies on 120 stocks designed to capitalize on short-term pullbacks.',
           color: 'bg-violet-50 border-violet-200 hover:border-violet-400',
         },
       ],
     },
     {
       category: 'Market Scanners',
-      description: 'Scan the entire market to find stocks matching specific criteria',
+      description: 'Over of 120 stocks to find stocks matching specific criteria',
       items: [
         {
           title: 'RSI Scanner',
           href: '/rsi-dashboard',
-          description: 'Scan for deeply oversold (RSI < 10) and overbought (RSI > 90) stocks across the market, with historical forward return analysis.',
+          description: 'Scan for oversold and overbought stocks, with historical forward return analysis.',
           color: 'bg-orange-50 border-orange-200 hover:border-orange-400',
         },
         {
@@ -95,7 +95,7 @@ export default function HomePage() {
         {
           title: 'Seasonality Scanner',
           href: '/seasonal-dashboard',
-          description: 'Discover which stocks historically perform best—or worst—based on seasonal patterns derived from 20 years of data.',
+          description: 'Discover which stocks historically perform best—or worst—based on seasonal patterns derived from 20+ years of data.',
           color: 'bg-pink-50 border-pink-200 hover:border-pink-400',
         },
       ],
@@ -107,7 +107,7 @@ export default function HomePage() {
         {
           title: 'Streak Backtester',
           href: '/streaks-single',
-          description: 'Analyze what happens after a specific stock drops or rises for consecutive days. Test mean-reversion patterns for any ticker.',
+          description: 'Analyze what happens after a specific stock drops or rises for consecutive days.',
           color: 'bg-red-50 border-red-200 hover:border-red-400',
         },
         {
@@ -157,7 +157,7 @@ export default function HomePage() {
             href="/market-snapshot"
             className="inline-flex items-center gap-2 bg-indigo-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-indigo-700 transition-colors shadow-lg hover:shadow-xl"
           >
-            View Today&apos;s Top Signals
+            View Today&apos;s Market Snapshot
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
