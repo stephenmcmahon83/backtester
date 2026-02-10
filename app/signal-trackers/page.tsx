@@ -227,17 +227,22 @@ export default function SignalTrackersPage() {
     }
   };
 
-  const formatSignalValue = (pick: Pick) => {
+    const formatSignalValue = (pick: Pick) => {
     if (pick.signal_type === 'rsi') {
       return pick.signal_value?.toFixed(1);
     }
     if (pick.signal_type === 'streak') {
       return pick.signal_value > 0 ? `+${pick.signal_value}` : pick.signal_value;
     }
-    // composite and seasonal show as percent
+    // FIX: Composite score is a raw number, not a percent. Just show it as is.
+    if (pick.signal_type === 'composite') {
+      return pick.signal_value?.toFixed(1);
+    }
+    
+    // Seasonal is likely the only one that needs percent formatting now
     return formatPercent(pick.signal_value);
   };
-
+  
   // Get recent picks for preview
   const recentPicks = allPicks.slice(0, 20);
 
@@ -409,7 +414,7 @@ export default function SignalTrackersPage() {
                       <th className="px-4 py-3 text-left">Signal</th>
                       <th className="px-4 py-3 text-left">Type</th>
                       <th className="px-4 py-3 text-left">Symbol</th>
-                      <th className="px-4 py-3 text-right">Value</th>
+                      <th className="px-4 py-3 text-right">Score</th>
                       <th className="px-4 py-3 text-right">Entry</th>
                       <th className="px-4 py-3 text-right">Return</th>
                       <th className="px-4 py-3 text-center">Status</th>

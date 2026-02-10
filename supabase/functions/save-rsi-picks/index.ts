@@ -6,6 +6,7 @@ const corsHeaders = {
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight request
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
@@ -18,146 +19,126 @@ Deno.serve(async (req) => {
 
     const today = new Date().toISOString().split('T')[0];
 
-    // Check if we already have RSI picks for today
+    // 1. Check if we already ran this function for today
     const { data: existingPicks } = await supabase
       .from('signal_picks')
       .select('id')
       .eq('pick_date', today)
-      .eq('signal_type', 'rsi')
+      .eq('signal_type', 'streak')
       .limit(1);
 
     if (existingPicks && existingPicks.length > 0) {
       return new Response(JSON.stringify({ 
-        message: 'RSI picks already exist for today',
-        date: today 
+        message: 'Streak picks already exist for today',
+        date: today,
+        skipped: true
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Call the existing RSI scanner function
-    const { data: rsiResponse, error: rsiError } = await supabase.functions.invoke('calculate-rsi-buckets', {
-      body: JSON.stringify({ rsiPeriod: '5d' }),
+    // 2. Call the calculation function
+    // CRITICAL FIX: Added Authorization header and passed body as object
+    const { data: streakResponse, error: streakError } = await supabase.functions.invoke('calculate-streak-buckets', {
+      body: { streakPeriod: '5d' }, 
+      headers: {
+        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`
+      }
     });
     
-    if (rsiError) {
-      throw new Error(`RSI function error: ${rsiError.message}`);
-    }
-    
-    if (!rsiResponse || rsiResponse.length === 0) {
-      throw new Error('No RSI data returned');
-    }
+    if (streakError) throw new Error(`Streak function error: ${streakError.message}`);
+    if (!streakResponse) throw new Error('No Streak data returned');
 
-    // Filter to stocks with sufficient data (occurrence_count >= 5)
-    const validData = rsiResponse.filter((row: any) => 
-      row.occurrence_count >= 5 && 
-      row.current_rsi !== null &&
+    // 3. Filter for valid data (Minimum 3 occurrences to be safe)
+    const validData = streakResponse.filter((row: any) => 
+      row.occurrence_count >= 3 && 
       row.avg_ret_5 !== null
     );
 
     if (validData.length === 0) {
-      throw new Error('No valid RSI data after filtering');
-    }
-
-    // Data is already sorted by RSI ascending (most oversold first)
-    // Get current open positions for RSI signals
-    const { data: openPositions } = await supabase
-      .from('signal_picks')
-      .select('symbol')
-      .eq('signal_type', 'rsi')
-      .is('exit_price', null);
-
-    const openSymbols = new Set((openPositions || []).map((p: any) => p.symbol));
-
-    // Get top 5 lowest RSI (oversold = bullish, expecting bounce UP)
-    const oversoldCandidates = validData.filter((s: any) => !openSymbols.has(s.symbol));
-    const best5 = oversoldCandidates.slice(0, 5);
-
-    // Get top 5 highest RSI (overbought = bearish, expecting drop)
-    // Need to get from the end of the sorted array
-    const overboughtCandidates = validData.filter((s: any) => !openSymbols.has(s.symbol));
-    const worst5 = overboughtCandidates.slice(-5).reverse();
-
-    // Get entry prices (most recent close)
-    const symbols = [...best5, ...worst5].map((s: any) => s.symbol);
-    
-    if (symbols.length === 0) {
       return new Response(JSON.stringify({ 
-        message: 'No new picks available (all candidates already have open positions)',
-        date: today,
-        skipped_symbols: Array.from(openSymbols),
+        success: true, 
+        picks_saved: 0, 
+        message: "No stocks met Streak criteria" 
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { data: priceData } = await supabase
-      .from('stock_data')
-      .select('symbol, close, date')
-      .in('symbol', symbols)
-      .order('date', { ascending: false });
+    // 4. Sort by Return Potential
+    // Best = Highest positive return
+    // Worst = Lowest (most negative) return
+    validData.sort((a: any, b: any) => b.avg_ret_5 - a.avg_ret_5);
 
-    const latestPrices: Record<string, number> = {};
-    for (const row of priceData || []) {
-      if (!latestPrices[row.symbol]) {
-        latestPrices[row.symbol] = row.close;
-      }
+    // 5. Check open positions to avoid duplicates
+    const { data: openPositions } = await supabase
+      .from('signal_picks')
+      .select('symbol')
+      .is('exit_price', null);
+    
+    const openSymbols = new Set((openPositions || []).map((p: any) => p.symbol));
+    const available = validData.filter((s: any) => !openSymbols.has(s.symbol));
+
+    const best5 = available.slice(0, 5);
+    const worst5 = available.slice(-5).reverse();
+    
+    const symbolsToPrice = [...best5, ...worst5].map((s:any) => s.symbol);
+
+    if (symbolsToPrice.length === 0) {
+      return new Response(JSON.stringify({ 
+        success: true, 
+        picks_saved: 0, 
+        message: "No new candidates available (others already open)" 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Prepare picks for insertion
+    // 6. Get current prices for entry
+    const { data: priceData } = await supabase
+      .from('stock_data')
+      .select('symbol, close')
+      .in('symbol', symbolsToPrice)
+      .eq('date', today);
+
+    const priceMap: Record<string, number> = {};
+    priceData?.forEach((p:any) => priceMap[p.symbol] = p.close);
+
     const picks: any[] = [];
 
-    best5.forEach((stock: any, idx: number) => {
-      picks.push({
-        pick_date: today,
-        symbol: stock.symbol,
-        signal_type: 'rsi',
-        pick_type: 'best',
-        rank: idx + 1,
-        signal_value: stock.current_rsi,
-        historical_avg_return: stock.avg_ret_5,
-        historical_win_rate: stock.win_pct_5,
-        historical_trade_count: stock.occurrence_count,
-        entry_price: latestPrices[stock.symbol] || null,
-      });
+    // Helper to format picks
+    const formatPick = (stock: any, type: 'best' | 'worst', rank: number) => ({
+      pick_date: today,
+      symbol: stock.symbol,
+      signal_type: 'streak',
+      pick_type: type,
+      rank: rank,
+      signal_value: stock.current_streak, // Ensure this matches what calculate-streak-buckets returns
+      historical_avg_return: stock.avg_ret_5,
+      historical_win_rate: stock.win_pct_5,
+      historical_trade_count: stock.occurrence_count,
+      entry_price: priceMap[stock.symbol] || null,
     });
 
-    worst5.forEach((stock: any, idx: number) => {
-      picks.push({
-        pick_date: today,
-        symbol: stock.symbol,
-        signal_type: 'rsi',
-        pick_type: 'worst',
-        rank: idx + 1,
-        signal_value: stock.current_rsi,
-        historical_avg_return: stock.avg_ret_5,
-        historical_win_rate: stock.win_pct_5,
-        historical_trade_count: stock.occurrence_count,
-        entry_price: latestPrices[stock.symbol] || null,
-      });
-    });
+    best5.forEach((s: any, i: number) => picks.push(formatPick(s, 'best', i + 1)));
+    worst5.forEach((s: any, i: number) => picks.push(formatPick(s, 'worst', i + 1)));
 
-    // Insert picks
-    const { error: insertError } = await supabase
-      .from('signal_picks')
-      .insert(picks);
-
-    if (insertError) throw insertError;
+    // 7. Insert into Database
+    if (picks.length > 0) {
+      const { error: insertError } = await supabase.from('signal_picks').insert(picks);
+      if (insertError) throw insertError;
+    }
 
     return new Response(JSON.stringify({ 
       success: true,
-      signal_type: 'rsi',
-      date: today,
-      best_picks: best5.map((s: any) => ({ symbol: s.symbol, rsi: s.current_rsi.toFixed(1) })),
-      worst_picks: worst5.map((s: any) => ({ symbol: s.symbol, rsi: s.current_rsi.toFixed(1) })),
-      skipped_symbols: Array.from(openSymbols),
-      total_inserted: picks.length,
+      picks_saved: picks.length,
+      sample: picks.slice(0, 2)
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
-    console.error('Error in save-rsi-picks:', error);
+  } catch (error: any) {
+    console.error('Error in save-streak-picks:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
