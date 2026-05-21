@@ -21,42 +21,30 @@ export default function Header() {
           {/* --- NAVIGATION LINKS --- */}
           <div className="flex flex-wrap justify-center items-center gap-1 md:gap-2">
 
-            {/* Market Overview Dropdown (NEW) */}
+            {/* Market Overview Dropdown */}
             <div className="relative group">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Market Overview <span className="text-xs">▼</span>
               </button>
               
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <Link 
-                  href="/market-snapshot" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100"
-                >
+                <Link href="/market-snapshot" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">
                   <span className="font-semibold">Market Snapshot</span>
                   <span className="block text-xs text-gray-500">Multi-factor scanner</span>
                 </Link>
-                <Link 
-                  href="/signal-tracker" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                >
-                  <span className="font-semibold">Signal Tracker</span>
+                <Link href="/signal-trackers" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  <span className="font-semibold">Signal Trackers</span>
                   <span className="block text-xs text-gray-500">Track pick performance</span>
                 </Link>
               </div>
             </div>
             
             {/* Individual Backtester Links */}
-            <Link 
-              href="/trend-strategies" 
-              className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors"
-            >
-              Trend (Single Stock)
+            <Link href="/trend-strategies" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">
+              Trend Portfolio (1-8 Stocks)
             </Link>
 
-            <Link 
-              href="/connors-strategies" 
-              className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors"
-            >
+            <Link href="/connors-strategies" className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors">
               Mean Reversion
             </Link>
             
@@ -67,61 +55,11 @@ export default function Header() {
               </button>
               
               <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <Link 
-                  href="/seasonal-single" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100"
-                >
+                <Link href="/seasonal-single" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">
                   Single Stock Seasonality
                 </Link>
-                <Link 
-                  href="/seasonal-dashboard" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                >
+                <Link href="/seasonal-dashboard" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                   All Stocks Seasonality
-                </Link>
-              </div>
-            </div>
-
-            {/* Streaks Dropdown */}
-            <div className="relative group">
-              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Streaks <span className="text-xs">▼</span>
-              </button>
-              
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <Link 
-                  href="/streaks-single" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100"
-                >
-                  Single Stock Analyzer
-                </Link>
-                <Link 
-                  href="/streaks-scanner" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                >
-                  All Stocks Scanner
-                </Link>
-              </div>
-            </div>
-
-            {/* RSI Analysis Dropdown */}
-            <div className="relative group">
-              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                RSI Analysis <span className="text-xs">▼</span>
-              </button>
-              
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <Link 
-                  href="/rsi-single" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100"
-                >
-                  Single Stock RSI Buckets
-                </Link>
-                <Link 
-                  href="/rsi-dashboard" 
-                  className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"
-                >
-                  RSI Market Scanner
                 </Link>
               </div>
             </div>
@@ -131,16 +69,10 @@ export default function Header() {
 
             {/* Informational Links */}
             <div className="flex gap-1">
-              <Link 
-                href="/about" 
-                className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
+              <Link href="/about" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 About
               </Link>
-              <Link 
-                href="/disclaimer" 
-                className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
+              <Link href="/disclaimer" className="text-gray-500 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">
                 Disclaimer
               </Link>
             </div>

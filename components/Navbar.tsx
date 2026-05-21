@@ -10,11 +10,7 @@ export default function Navbar() {
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const toggleDropdown = (name: string) => {
-    if (activeDropdown === name) {
-      setActiveDropdown(null);
-    } else {
-      setActiveDropdown(name);
-    }
+    setActiveDropdown(activeDropdown === name ? null : name);
   };
 
   return (
@@ -59,29 +55,18 @@ export default function Navbar() {
                 </Link>
               </div>
             </div>
-            {/* Desktop Dropdown: Single Stock Backtesting */}
-            <div className="relative group z-50">
-              <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
-                Single Stock Backtesting <span className="text-xs">▼</span>
-              </button>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/trend-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">
-                  Trend Strategies
-                </Link>
-                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
-                  Mean-Reversion Strategies
-                </Link>
-              </div>
-            </div>
 
-            {/* Desktop Dropdown: Portfolio */}
+            {/* Desktop Dropdown: Portfolio Backtesting */}
             <div className="relative group z-50">
               <button className="text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 px-3 py-2 rounded-md text-sm font-semibold transition-colors flex items-center gap-1">
                 Portfolio Backtesting <span className="text-xs">▼</span>
               </button>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-64 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <Link href="/portfolio-momentum" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
-                  Monthly Momentum Rotation
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-1 w-56 bg-white border border-gray-200 rounded-md shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                <Link href="/trend-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 border-b border-gray-100">
+                  Trend (1-8 Stocks)
+                </Link>
+                <Link href="/connors-strategies" className="block px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                  Mean-Reversion Strategies
                 </Link>
               </div>
             </div>
@@ -169,10 +154,7 @@ export default function Navbar() {
 
             {/* Mobile Dropdown: Market Overview */}
             <div>
-              <button 
-                onClick={() => toggleDropdown('market')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
+              <button onClick={() => toggleDropdown('market')} className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">
                 Market Overview
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'market' ? 'rotate-180' : ''}`}>▼</span>
               </button>
@@ -182,52 +164,22 @@ export default function Navbar() {
                     Market Snapshot
                   </Link>
                   <Link href="/signal-trackers" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Signal Trackers Overview
+                    Signal Trackers Performance
                   </Link>
                 </div>
               )}
             </div>
 
-            {/* Mobile Dropdown: Signal Trackers */}
+            {/* Mobile Dropdown: Portfolio */}
             <div>
-              <button 
-                onClick={() => toggleDropdown('trackers')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Signal Trackers
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'trackers' ? 'rotate-180' : ''}`}>▼</span>
+              <button onClick={() => toggleDropdown('portfolio')} className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">
+                Portfolio Backtesting
+                <span className={`text-xs transform transition-transform ${activeDropdown === 'portfolio' ? 'rotate-180' : ''}`}>▼</span>
               </button>
-              {activeDropdown === 'trackers' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/signal-trackers" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    All Trackers Overview
-                  </Link>
-                  <Link href="/rsi-tracker" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    RSI Tracker
-                  </Link>
-                  <Link href="/streak-tracker" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Streak Tracker
-                  </Link>
-                  <Link href="/seasonal-tracker" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Seasonal Tracker
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Dropdown: Single Stock Backtesting */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('single')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Single Stock Backtesting 
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'single' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'single' && (
+              {activeDropdown === 'portfolio' && (
                 <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
                   <Link href="/trend-strategies" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Trend Strategies
+                    Trend (1-8 Stocks)
                   </Link>
                   <Link href="/connors-strategies" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
                     Mean-Reversion Strategies
@@ -236,30 +188,9 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Dropdown: Portfolio */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('portfolio')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Portfolio Backtesting
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'portfolio' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'portfolio' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/portfolio-momentum" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Monthly Momentum Rotation
-                  </Link>
-                </div>
-              )}
-            </div>
-
             {/* Mobile Dropdown: Seasonality */}
             <div>
-              <button 
-                onClick={() => toggleDropdown('seasonal')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
+              <button onClick={() => toggleDropdown('seasonal')} className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">
                 Seasonality
                 <span className={`text-xs transform transition-transform ${activeDropdown === 'seasonal' ? 'rotate-180' : ''}`}>▼</span>
               </button>
@@ -270,48 +201,6 @@ export default function Navbar() {
                   </Link>
                   <Link href="/seasonal-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
                     All Stocks/ETFs - Current
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Dropdown: Streaks */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('streaks')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                Streaks
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'streaks' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'streaks' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/streaks-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Single Stock Analyzer
-                  </Link>
-                  <Link href="/streaks-scanner" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    All Stocks Scanner
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* Mobile Dropdown: RSI Analysis */}
-            <div>
-              <button 
-                onClick={() => toggleDropdown('rsi')} 
-                className="w-full flex justify-between items-center px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50"
-              >
-                RSI Analysis
-                <span className={`text-xs transform transition-transform ${activeDropdown === 'rsi' ? 'rotate-180' : ''}`}>▼</span>
-              </button>
-              {activeDropdown === 'rsi' && (
-                <div className="pl-6 space-y-1 bg-gray-50 rounded-md mt-1">
-                  <Link href="/rsi-single" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    Single Stock RSI Buckets
-                  </Link>
-                  <Link href="/rsi-dashboard" className="block px-3 py-2 text-sm text-gray-600 hover:text-indigo-600" onClick={toggleMenu}>
-                    RSI Market Scanner
                   </Link>
                 </div>
               )}
